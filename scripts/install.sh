@@ -168,6 +168,12 @@ install_via_bun() {
             exit 1
         fi
 
+        # Install workspace dependencies first (catalog: protocol needs root)
+        (cd "$TMP_DIR" && bun install) || {
+            echo "Failed to install workspace dependencies"
+            exit 1
+        }
+
         bun install -g "$TMP_DIR/packages/coding-agent" || {
             echo "Failed to install from source"
             exit 1
