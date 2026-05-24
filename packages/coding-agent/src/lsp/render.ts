@@ -8,7 +8,11 @@
  * - Collapsible/expandable views
  */
 import type { RenderResultOptions } from "@oh-my-applepie/pi-agent-core";
-import { type HighlightColors, highlightCode as nativeHighlightCode, supportsLanguage } from "@oh-my-applepie/pi-natives";
+import {
+	type HighlightColors,
+	highlightCode as nativeHighlightCode,
+	supportsLanguage,
+} from "@oh-my-applepie/pi-natives";
 import { type Component, Text } from "@oh-my-applepie/pi-tui";
 import { getLanguageFromPath, type Theme } from "../modes/theme/theme";
 import {

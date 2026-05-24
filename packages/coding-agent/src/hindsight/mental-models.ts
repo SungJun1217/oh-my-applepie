@@ -38,6 +38,7 @@
  */
 
 import { logger } from "@oh-my-applepie/pi-utils";
+import * as Diff from "diff";
 import type { BankScope } from "./bank";
 import type {
 	HindsightApi,
@@ -48,7 +49,6 @@ import type {
 } from "./client";
 import type { HindsightScoping } from "./config";
 import seedsData from "./seeds.json" with { type: "json" };
-import * as Diff from "diff";
 
 interface RawSeed {
 	id: string;

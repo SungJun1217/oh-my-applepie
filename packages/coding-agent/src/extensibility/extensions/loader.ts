@@ -320,7 +320,13 @@ export async function loadExtensionFromFactory(
 	name = "<inline>",
 ): Promise<Extension> {
 	const extension = createExtension(name, name);
-	const api = new ConcreteExtensionAPI(await import("@oh-my-applepie/pi-coding-agent"), extension, runtime, cwd, eventBus);
+	const api = new ConcreteExtensionAPI(
+		await import("@oh-my-applepie/pi-coding-agent"),
+		extension,
+		runtime,
+		cwd,
+		eventBus,
+	);
 	await factory(api);
 	return extension;
 }

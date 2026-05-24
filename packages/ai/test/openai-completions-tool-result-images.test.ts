@@ -1,7 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import { getBundledModel } from "@oh-my-applepie/pi-ai/models";
 import { convertMessages } from "@oh-my-applepie/pi-ai/providers/openai-completions";
-import type { AssistantMessage, Context, Model, OpenAICompat, ToolResultMessage, Usage } from "@oh-my-applepie/pi-ai/types";
+import type {
+	AssistantMessage,
+	Context,
+	Model,
+	OpenAICompat,
+	ToolResultMessage,
+	Usage,
+} from "@oh-my-applepie/pi-ai/types";
 
 const emptyUsage: Usage = {
 	input: 0,

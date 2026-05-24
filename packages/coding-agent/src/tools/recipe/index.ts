@@ -1,4 +1,9 @@
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentTool,
+	AgentToolContext,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+} from "@oh-my-applepie/pi-agent-core";
 import type { Component } from "@oh-my-applepie/pi-tui";
 import { prompt } from "@oh-my-applepie/pi-utils";
 import * as z from "zod/v4";

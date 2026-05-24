@@ -15,7 +15,11 @@ import { FindTool } from "@oh-my-applepie/pi-coding-agent/tools/find";
 import { JobTool } from "@oh-my-applepie/pi-coding-agent/tools/job";
 import { wrapToolWithMetaNotice } from "@oh-my-applepie/pi-coding-agent/tools/output-meta";
 import { ReadTool } from "@oh-my-applepie/pi-coding-agent/tools/read";
-import { DEFAULT_FILE_LIMIT, MULTI_FILE_PER_FILE_MATCHES, SearchTool } from "@oh-my-applepie/pi-coding-agent/tools/search";
+import {
+	DEFAULT_FILE_LIMIT,
+	MULTI_FILE_PER_FILE_MATCHES,
+	SearchTool,
+} from "@oh-my-applepie/pi-coding-agent/tools/search";
 import { WriteTool } from "@oh-my-applepie/pi-coding-agent/tools/write";
 import { $which, Snowflake } from "@oh-my-applepie/pi-utils";
 import { unzipSync } from "fflate";

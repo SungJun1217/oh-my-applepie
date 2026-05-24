@@ -1,5 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { type RequestBody, transformRequestBody } from "@oh-my-applepie/pi-ai/providers/openai-codex/request-transformer";
+import {
+	type RequestBody,
+	transformRequestBody,
+} from "@oh-my-applepie/pi-ai/providers/openai-codex/request-transformer";
 import { parseCodexError } from "@oh-my-applepie/pi-ai/providers/openai-codex/response-handler";
 import { convertOpenAICodexResponsesTools } from "@oh-my-applepie/pi-ai/providers/openai-codex-responses";
 import type { Tool } from "@oh-my-applepie/pi-ai/types";

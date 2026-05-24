@@ -5,7 +5,10 @@ import { loadExtensions } from "@oh-my-applepie/pi-coding-agent/extensibility/ex
 import { TempDir } from "@oh-my-applepie/pi-utils";
 
 const currentPiCodingAgentPath = Bun.resolveSync("@oh-my-applepie/pi-coding-agent", import.meta.dir);
-const currentPiExtensionsPath = Bun.resolveSync("@oh-my-applepie/pi-coding-agent/extensibility/extensions", import.meta.dir);
+const currentPiExtensionsPath = Bun.resolveSync(
+	"@oh-my-applepie/pi-coding-agent/extensibility/extensions",
+	import.meta.dir,
+);
 
 describe("issue #973: legacy Pi plugin imports", () => {
 	let projectDir: TempDir;

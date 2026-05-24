@@ -68,6 +68,10 @@ export class VirtualTerminal implements Terminal {
 		return undefined;
 	}
 
+	get preserveScrollbackOnFullRedraw(): boolean {
+		return false;
+	}
+
 	onAppearanceChange(_callback: (appearance: TerminalAppearance) => void): void {
 		// No-op for virtual terminal
 	}

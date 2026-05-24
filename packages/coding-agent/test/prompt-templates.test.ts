@@ -10,7 +10,10 @@
 
 import { describe, expect, test } from "bun:test";
 import { expandPromptTemplate, type PromptTemplate } from "@oh-my-applepie/pi-coding-agent/config/prompt-templates";
-import { expandSlashCommand, type FileSlashCommand } from "@oh-my-applepie/pi-coding-agent/extensibility/slash-commands";
+import {
+	expandSlashCommand,
+	type FileSlashCommand,
+} from "@oh-my-applepie/pi-coding-agent/extensibility/slash-commands";
 import { parseCommandArgs, substituteArgs } from "@oh-my-applepie/pi-coding-agent/utils/command-args";
 
 // ============================================================================

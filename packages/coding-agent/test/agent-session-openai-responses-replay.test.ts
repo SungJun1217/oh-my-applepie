@@ -3,7 +3,13 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { getBundledModel } from "@oh-my-applepie/pi-ai/models";
-import type { AssistantMessage, Message, ProviderPayload, ProviderSessionState, Usage } from "@oh-my-applepie/pi-ai/types";
+import type {
+	AssistantMessage,
+	Message,
+	ProviderPayload,
+	ProviderSessionState,
+	Usage,
+} from "@oh-my-applepie/pi-ai/types";
 import { createOpenAIResponsesHistoryPayload } from "@oh-my-applepie/pi-ai/utils";
 import type { AgentSession } from "@oh-my-applepie/pi-coding-agent/session/agent-session";
 import type { AuthStorage } from "@oh-my-applepie/pi-coding-agent/session/auth-storage";

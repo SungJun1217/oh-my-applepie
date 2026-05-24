@@ -5,7 +5,15 @@ import * as path from "node:path";
 import { Effort } from "@oh-my-applepie/pi-ai";
 import { getBundledModel } from "@oh-my-applepie/pi-ai/models";
 import { complete, getEnvApiKey, stream } from "@oh-my-applepie/pi-ai/stream";
-import type { Api, Context, ImageContent, Model, OptionsForApi, Tool, ToolResultMessage } from "@oh-my-applepie/pi-ai/types";
+import type {
+	Api,
+	Context,
+	ImageContent,
+	Model,
+	OptionsForApi,
+	Tool,
+	ToolResultMessage,
+} from "@oh-my-applepie/pi-ai/types";
 import { $which } from "@oh-my-applepie/pi-utils";
 import * as z from "zod/v4";
 import { e2eApiKey, resolveApiKey } from "./oauth";

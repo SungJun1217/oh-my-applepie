@@ -1,4 +1,9 @@
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentTool,
+	AgentToolContext,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+} from "@oh-my-applepie/pi-agent-core";
 import { instrumentedCompleteSimple, resolveTelemetry } from "@oh-my-applepie/pi-agent-core";
 import { type Api, completeSimple, type Model } from "@oh-my-applepie/pi-ai";
 import { prompt } from "@oh-my-applepie/pi-utils";

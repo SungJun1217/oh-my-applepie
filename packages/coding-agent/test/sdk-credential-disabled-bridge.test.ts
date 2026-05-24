@@ -6,7 +6,11 @@ import { AuthStorage, type CredentialDisabledEvent } from "@oh-my-applepie/pi-ai
 import * as oauthUtils from "@oh-my-applepie/pi-ai/utils/oauth";
 import { ModelRegistry } from "@oh-my-applepie/pi-coding-agent/config/model-registry";
 import { Settings } from "@oh-my-applepie/pi-coding-agent/config/settings";
-import type { Extension, ExtensionError, ExtensionFactory } from "@oh-my-applepie/pi-coding-agent/extensibility/extensions";
+import type {
+	Extension,
+	ExtensionError,
+	ExtensionFactory,
+} from "@oh-my-applepie/pi-coding-agent/extensibility/extensions";
 import { ExtensionRunner } from "@oh-my-applepie/pi-coding-agent/extensibility/extensions";
 import { ExtensionRuntime } from "@oh-my-applepie/pi-coding-agent/extensibility/extensions/loader";
 import { createAgentSession } from "@oh-my-applepie/pi-coding-agent/sdk";

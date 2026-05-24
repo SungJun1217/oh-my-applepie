@@ -1,6 +1,10 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "bun:test";
 import { resetSettingsForTest, Settings, settings } from "@oh-my-applepie/pi-coding-agent/config/settings";
-import { fileHyperlink, isHyperlinkEnabled, tryResolveInternalUrlSync } from "@oh-my-applepie/pi-coding-agent/tui/hyperlink";
+import {
+	fileHyperlink,
+	isHyperlinkEnabled,
+	tryResolveInternalUrlSync,
+} from "@oh-my-applepie/pi-coding-agent/tui/hyperlink";
 import * as terminalCaps from "@oh-my-applepie/pi-tui";
 
 // OSC 8 sequence markers

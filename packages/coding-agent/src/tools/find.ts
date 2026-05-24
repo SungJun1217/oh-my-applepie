@@ -1,6 +1,11 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentTool,
+	AgentToolContext,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+} from "@oh-my-applepie/pi-agent-core";
 import * as natives from "@oh-my-applepie/pi-natives";
 import type { Component } from "@oh-my-applepie/pi-tui";
 import { Text } from "@oh-my-applepie/pi-tui";

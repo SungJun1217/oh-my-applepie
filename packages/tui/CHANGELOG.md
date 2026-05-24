@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed virtual terminal resize/scrollback regression tests inheriting host tmux/screen/zellij scrollback-preservation behavior by moving the multiplexer policy onto the concrete terminal implementation.
+
 ## [15.2.3] - 2026-05-22
 ### Added
 

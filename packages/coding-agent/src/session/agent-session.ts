@@ -6617,12 +6617,12 @@ export class AgentSession {
 					raceController.abort();
 				}
 
-			summary = compactResult.summary;
-			shortSummary = compactResult.shortSummary;
-			firstKeptEntryId = compactResult.firstKeptEntryId;
-			tokensBefore = compactResult.tokensBefore;
-			details = compactResult.details;
-			preserveData = { ...(compactionPrep.preserveData ?? {}), ...(compactResult.preserveData ?? {}) };
+				summary = compactResult.summary;
+				shortSummary = compactResult.shortSummary;
+				firstKeptEntryId = compactResult.firstKeptEntryId;
+				tokensBefore = compactResult.tokensBefore;
+				details = compactResult.details;
+				preserveData = { ...(compactionPrep.preserveData ?? {}), ...(compactResult.preserveData ?? {}) };
 			}
 
 			if (autoCompactionSignal.aborted) {

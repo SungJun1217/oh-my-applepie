@@ -2,7 +2,12 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { type AuthBrokerServerHandle, AuthStorage, SqliteAuthCredentialStore, startAuthBroker } from "@oh-my-applepie/pi-ai";
+import {
+	type AuthBrokerServerHandle,
+	AuthStorage,
+	SqliteAuthCredentialStore,
+	startAuthBroker,
+} from "@oh-my-applepie/pi-ai";
 import { getAgentDbPath, setAgentDir } from "@oh-my-applepie/pi-utils";
 import { runAuthBrokerCommand } from "../src/cli/auth-broker-cli";
 

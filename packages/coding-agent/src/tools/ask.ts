@@ -15,7 +15,12 @@
  *   - Questions may time out and auto-select the recommended option (configurable, disabled in plan mode)
  */
 
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentTool,
+	AgentToolContext,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+} from "@oh-my-applepie/pi-agent-core";
 import { type Component, Container, Markdown, renderInlineMarkdown, TERMINAL, Text } from "@oh-my-applepie/pi-tui";
 import { prompt, untilAborted } from "@oh-my-applepie/pi-utils";
 import * as z from "zod/v4";

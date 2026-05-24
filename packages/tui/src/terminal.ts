@@ -101,6 +101,17 @@ export interface Terminal {
 
 	/** The last detected terminal appearance, or undefined if not yet known. */
 	get appearance(): TerminalAppearance | undefined;
+
+	/**
+	 * True when the host terminal should keep user scrollback during full redraws.
+	 * Real terminals inside multiplexers use this to avoid destructive history
+	 * clears, while virtual terminals keep deterministic redraw semantics in tests.
+	 */
+	get preserveScrollbackOnFullRedraw(): boolean;
+}
+
+function isMultiplexerSession(): boolean {
+	return Boolean(Bun.env.TMUX || Bun.env.STY || Bun.env.ZELLIJ);
 }
 
 function isWindowsSubsystemForLinux(): boolean {
@@ -139,6 +150,10 @@ export class ProcessTerminal implements Terminal {
 
 	get appearance(): TerminalAppearance | undefined {
 		return this.#appearance;
+	}
+
+	get preserveScrollbackOnFullRedraw(): boolean {
+		return isMultiplexerSession();
 	}
 
 	onAppearanceChange(callback: (appearance: TerminalAppearance) => void): void {

@@ -18,7 +18,12 @@
  * recipient's main agent loop being free.
  */
 
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentTool,
+	AgentToolContext,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+} from "@oh-my-applepie/pi-agent-core";
 import { prompt } from "@oh-my-applepie/pi-utils";
 import * as z from "zod/v4";
 import ircDescription from "../prompts/tools/irc.md" with { type: "text" };

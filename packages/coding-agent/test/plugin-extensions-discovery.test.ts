@@ -6,7 +6,10 @@ import { discoverAndLoadExtensions } from "@oh-my-applepie/pi-coding-agent/exten
 import { getAgentDir, getPluginsDir, setAgentDir, TempDir } from "@oh-my-applepie/pi-utils";
 
 const currentPiCodingAgentPath = Bun.resolveSync("@oh-my-applepie/pi-coding-agent", import.meta.dir);
-const currentPiExtensionsPath = Bun.resolveSync("@oh-my-applepie/pi-coding-agent/extensibility/extensions", import.meta.dir);
+const currentPiExtensionsPath = Bun.resolveSync(
+	"@oh-my-applepie/pi-coding-agent/extensibility/extensions",
+	import.meta.dir,
+);
 
 describe("plugin extension discovery", () => {
 	let projectDir: TempDir;

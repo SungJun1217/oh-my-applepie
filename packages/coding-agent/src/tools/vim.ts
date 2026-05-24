@@ -1,4 +1,9 @@
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentTool,
+	AgentToolContext,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+} from "@oh-my-applepie/pi-agent-core";
 import type { Component } from "@oh-my-applepie/pi-tui";
 import { extractSegments, sliceWithWidth, Text } from "@oh-my-applepie/pi-tui";
 import { isEnoent, logger, prompt, untilAborted } from "@oh-my-applepie/pi-utils";

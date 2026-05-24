@@ -1,4 +1,9 @@
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentTool,
+	AgentToolContext,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+} from "@oh-my-applepie/pi-agent-core";
 import { prompt } from "@oh-my-applepie/pi-utils";
 import * as z from "zod/v4";
 import checkpointDescription from "../prompts/tools/checkpoint.md" with { type: "text" };

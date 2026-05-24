@@ -7,7 +7,12 @@ import {
 	renderGoalPrompt,
 	renderTrustedObjective,
 } from "@oh-my-applepie/pi-coding-agent/goals/runtime";
-import type { Goal, GoalModeState, GoalRuntimeEvent, GoalTokenUsage } from "@oh-my-applepie/pi-coding-agent/goals/state";
+import type {
+	Goal,
+	GoalModeState,
+	GoalRuntimeEvent,
+	GoalTokenUsage,
+} from "@oh-my-applepie/pi-coding-agent/goals/state";
 
 function createUsage(overrides: Partial<GoalTokenUsage> = {}): GoalTokenUsage {
 	return {

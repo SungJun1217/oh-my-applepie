@@ -1,4 +1,11 @@
-import { type Component, matchesKey, padding, replaceTabs, truncateToWidth, visibleWidth } from "@oh-my-applepie/pi-tui";
+import {
+	type Component,
+	matchesKey,
+	padding,
+	replaceTabs,
+	truncateToWidth,
+	visibleWidth,
+} from "@oh-my-applepie/pi-tui";
 import { sanitizeText } from "@oh-my-applepie/pi-utils";
 import { theme } from "../modes/theme/theme";
 import { copyToClipboard } from "../utils/clipboard";

@@ -7,7 +7,12 @@
  * - Register commands, keyboard shortcuts, and CLI flags
  * - Interact with the user via UI primitives
  */
-import type { AgentMessage, AgentToolResult, AgentToolUpdateCallback, ThinkingLevel } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentMessage,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+	ThinkingLevel,
+} from "@oh-my-applepie/pi-agent-core";
 import type { CompactionResult } from "@oh-my-applepie/pi-agent-core/compaction";
 import type {
 	Api,

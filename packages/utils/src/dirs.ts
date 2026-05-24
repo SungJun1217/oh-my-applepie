@@ -22,6 +22,9 @@ export const APP_NAME: string = "omap";
 /** Config directory name (e.g. ".omap") */
 export const CONFIG_DIR_NAME: string = ".omap";
 
+/** XDG application directory name kept stable for existing migrated data. */
+const XDG_APP_DIR_NAME = "omp";
+
 /** Version (e.g. "1.0.0") */
 export const VERSION: string = version;
 
@@ -140,7 +143,7 @@ class DirResolver {
 				const value = process.env[envVar];
 				if (value) {
 					try {
-						const joined = path.join(value, APP_NAME);
+						const joined = path.join(value, XDG_APP_DIR_NAME);
 						if (fs.existsSync(joined)) {
 							return joined;
 						}

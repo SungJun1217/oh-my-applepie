@@ -31,7 +31,15 @@ import {
 	SqliteAuthCredentialStore,
 	startAuthBroker,
 } from "@oh-my-applepie/pi-ai";
-import { $which, APP_NAME, getAgentDbPath, getConfigRootDir, isEnoent, logger, VERSION } from "@oh-my-applepie/pi-utils";
+import {
+	$which,
+	APP_NAME,
+	getAgentDbPath,
+	getConfigRootDir,
+	isEnoent,
+	logger,
+	VERSION,
+} from "@oh-my-applepie/pi-utils";
 import { $ } from "bun";
 import chalk from "chalk";
 import { resolveAuthBrokerConfig } from "../session/auth-broker-config";

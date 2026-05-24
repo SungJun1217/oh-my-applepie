@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, test, vi } from "bun:test";
 import type { AgentMessage, AgentTool } from "@oh-my-applepie/pi-agent-core";
-import { AUTO_HANDOFF_THRESHOLD_FOCUS, generateHandoff, renderHandoffPrompt } from "@oh-my-applepie/pi-agent-core/compaction";
+import {
+	AUTO_HANDOFF_THRESHOLD_FOCUS,
+	generateHandoff,
+	renderHandoffPrompt,
+} from "@oh-my-applepie/pi-agent-core/compaction";
 import type { AssistantMessage, Model, ToolCall } from "@oh-my-applepie/pi-ai";
 import * as ai from "@oh-my-applepie/pi-ai";
 import { Effort } from "@oh-my-applepie/pi-ai";

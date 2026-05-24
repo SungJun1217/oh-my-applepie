@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { buildOpenAiNativeHistory, requestOpenAiRemoteCompaction } from "@oh-my-applepie/pi-agent-core/compaction/openai";
+import {
+	buildOpenAiNativeHistory,
+	requestOpenAiRemoteCompaction,
+} from "@oh-my-applepie/pi-agent-core/compaction/openai";
 import type { AssistantMessage, Model, ToolResultMessage } from "@oh-my-applepie/pi-ai/types";
 import { hookFetch } from "@oh-my-applepie/pi-utils";
 

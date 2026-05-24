@@ -213,6 +213,6 @@ export function prepareRetentionTranscript(
 	}
 	return { transcript, messageCount: parts.length };
 }
-	
+
 /** Max transcript characters for full-session retains (~12.5K tokens). */
 const MAX_RETAIN_CHARS = 50_000;

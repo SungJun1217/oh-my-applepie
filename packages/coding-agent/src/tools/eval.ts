@@ -1,4 +1,9 @@
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentTool,
+	AgentToolContext,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+} from "@oh-my-applepie/pi-agent-core";
 import type { ImageContent } from "@oh-my-applepie/pi-ai";
 import type { Component } from "@oh-my-applepie/pi-tui";
 import { Markdown, Text } from "@oh-my-applepie/pi-tui";

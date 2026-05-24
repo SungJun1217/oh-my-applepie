@@ -1,7 +1,12 @@
 import { Database } from "bun:sqlite";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { AgentTool, AgentToolContext, AgentToolResult, AgentToolUpdateCallback } from "@oh-my-applepie/pi-agent-core";
+import type {
+	AgentTool,
+	AgentToolContext,
+	AgentToolResult,
+	AgentToolUpdateCallback,
+} from "@oh-my-applepie/pi-agent-core";
 import type { ImageContent, TextContent } from "@oh-my-applepie/pi-ai";
 import { glob, type SummaryResult, summarizeCode } from "@oh-my-applepie/pi-natives";
 import type { Component } from "@oh-my-applepie/pi-tui";

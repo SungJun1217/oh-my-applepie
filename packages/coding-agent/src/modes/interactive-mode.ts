@@ -26,7 +26,16 @@ import {
 	TUI,
 	visibleWidth,
 } from "@oh-my-applepie/pi-tui";
-import { APP_NAME, adjustHsv, getProjectDir, hsvToRgb, isEnoent, logger, postmortem, prompt } from "@oh-my-applepie/pi-utils";
+import {
+	APP_NAME,
+	adjustHsv,
+	getProjectDir,
+	hsvToRgb,
+	isEnoent,
+	logger,
+	postmortem,
+	prompt,
+} from "@oh-my-applepie/pi-utils";
 import chalk from "chalk";
 import { KeybindingsManager } from "../config/keybindings";
 import { isSettingsInitialized, Settings, settings } from "../config/settings";

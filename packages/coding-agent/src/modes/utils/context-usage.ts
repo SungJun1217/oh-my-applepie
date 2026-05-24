@@ -1,5 +1,9 @@
 import type { CompactionSettings } from "@oh-my-applepie/pi-agent-core/compaction";
-import { effectiveReserveTokens, estimateTokens, resolveThresholdTokens } from "@oh-my-applepie/pi-agent-core/compaction";
+import {
+	effectiveReserveTokens,
+	estimateTokens,
+	resolveThresholdTokens,
+} from "@oh-my-applepie/pi-agent-core/compaction";
 import type { Model } from "@oh-my-applepie/pi-ai";
 import { countTokens } from "@oh-my-applepie/pi-natives";
 import { formatNumber } from "@oh-my-applepie/pi-utils";
