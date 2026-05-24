@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/SungJun1217/oh-my-applepie/blob/main/assets/hero.png?raw=true" alt="omap">
+  <img src="https://github.com/SungJun1217/oh-my-applepie/blob/main/assets/oh.png?raw=true" alt="omap">
 </p>
 
 <p align="center">
