@@ -212,6 +212,7 @@ install_via_bun() {
 
         # Install the binary
         mkdir -p "$INSTALL_DIR"
+        rm -f "$INSTALL_DIR/omap"
         cp "$REPO_DIR/packages/coding-agent/dist/omap" "$INSTALL_DIR/omap" || {
             echo "Failed to install omap binary"
             exit 1
