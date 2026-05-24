@@ -148,36 +148,42 @@ install_via_bun() {
             exit 1
         fi
 
-        TMP_DIR="$(mktemp -d)"
-        trap 'rm -rf "$TMP_DIR"' EXIT
+        REPO_DIR="${PI_REPO_DIR:-$HOME/.local/share/omap/repo}"
 
-        if git clone --depth 1 --branch "$REF" "https://github.com/${REPO}.git" "$TMP_DIR" >/dev/null 2>&1; then
-            :
+        if [ -d "$REPO_DIR/.git" ]; then
+            echo "Updating existing repo at $REPO_DIR..."
+            (cd "$REPO_DIR" && git fetch origin && git checkout "$REF" && git pull origin "$REF" 2>/dev/null || git reset --hard "origin/$REF" 2>/dev/null || true)
         else
-            git clone "https://github.com/${REPO}.git" "$TMP_DIR"
-            (cd "$TMP_DIR" && git checkout "$REF")
+            echo "Cloning $REPO to $REPO_DIR..."
+            mkdir -p "$(dirname "$REPO_DIR")"
+            if git clone --depth 1 --branch "$REF" "https://github.com/${REPO}.git" "$REPO_DIR" >/dev/null 2>&1; then
+                :
+            else
+                git clone "https://github.com/${REPO}.git" "$REPO_DIR"
+                (cd "$REPO_DIR" && git checkout "$REF")
+            fi
         fi
 
         # Pull LFS files
         if has_git_lfs; then
-            (cd "$TMP_DIR" && git lfs pull)
+            (cd "$REPO_DIR" && git lfs pull)
         fi
 
-        if [ ! -d "$TMP_DIR/packages/coding-agent" ]; then
-            echo "Expected package at ${TMP_DIR}/packages/coding-agent"
+        if [ ! -d "$REPO_DIR/packages/coding-agent" ]; then
+            echo "Expected package at ${REPO_DIR}/packages/coding-agent"
             exit 1
         fi
 
-        # Install workspace dependencies first (catalog: protocol needs root)
-        (cd "$TMP_DIR" && bun install) || {
+        # Install workspace dependencies
+        echo "Installing dependencies..."
+        (cd "$REPO_DIR" && bun install) || {
             echo "Failed to install workspace dependencies"
             exit 1
         }
 
-        # Symlink the binary from workspace node_modules (bun install -g
-        # doesn't support catalog: protocol for workspace packages).
+        # Link the binary from workspace node_modules
         mkdir -p "$INSTALL_DIR"
-        ln -sf "$TMP_DIR/node_modules/.bin/omap" "$INSTALL_DIR/omap" || {
+        ln -sf "$REPO_DIR/node_modules/.bin/omap" "$INSTALL_DIR/omap" || {
             echo "Failed to link omap binary"
             exit 1
         }
