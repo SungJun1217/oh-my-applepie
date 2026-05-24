@@ -49,7 +49,7 @@ macOS · Linux · bun ≥ 1.3.14
 
 ## Every tool, _benchmaxxed_.
 
-Edits that land on the first attempt. Reads that summarize files instead of dumping their content. Searches that return instantly. Pick any model — omp will get it right.
+Edits that land on the first attempt. Reads that summarize files instead of dumping their content. Searches that return instantly. Pick any model — omap will get it right.
 
 | model            | metric       | what                                                                  |
 | ---------------- | ------------ | --------------------------------------------------------------------- |
@@ -67,7 +67,7 @@ Edits that land on the first attempt. Reads that summarize files instead of dump
 
 ## The Pi _you love_, with **batteries included**.
 
-Originally built on [Mario Zechner](https://github.com/mariozechner)'s wonderful [Pi](https://github.com/badlogic/pi-mono), omp adds everything you're missing.
+Originally built on [Mario Zechner](https://github.com/mariozechner)'s wonderful [Pi](https://github.com/badlogic/pi-mono), omap adds everything you're missing.
 
 ### 01 · Code execution w/ tool-calling
 
@@ -115,7 +115,7 @@ _[Watch the capture ↗](https://omp.sh/clips/web.mp4)_
 
 ### 07 · Unapologetically native. Even on Windows.
 
-Other agents shell out to rg, grep, find, and bash. On many machines those binaries don't exist, and on the ones where they do, every call costs a fork-exec round-trip. omp links the real implementations into the process. ripgrep, glob, find: in-process. brush is the bash, with sessions that survive across calls. The same omp binary runs on macOS, Linux, and Windows — no WSL bridge.
+Other agents shell out to rg, grep, find, and bash. On many machines those binaries don't exist, and on the ones where they do, every call costs a fork-exec round-trip. omap links the real implementations into the process. ripgrep, glob, find: in-process. brush is the bash, with sessions that survive across calls. The same omap binary runs on macOS, Linux, and Windows — no WSL bridge.
 
 ### 08 · Code review with priorities and a verdict
 
@@ -135,15 +135,15 @@ The agent remembers your codebase between sessions. It writes facts mid-run with
 
 ### 12 · ACP: editor-drivable agent
 
-Run omp inside Zed and you get the same agent you drive from the terminal — reading the buffer you're actually looking at, writing through the editor's save path, spawning shells in the editor's terminal. Destructive tools pause for a permission prompt you can answer once and forget. No bridge, no plugin, no second brain to keep in sync.
+Run omap inside Zed and you get the same agent you drive from the terminal — reading the buffer you're actually looking at, writing through the editor's save path, spawning shells in the editor's terminal. Destructive tools pause for a permission prompt you can answer once and forget. No bridge, no plugin, no second brain to keep in sync.
 
 ### 13 · Inherits what your other tools already wrote
 
-Every other agent ships an importer and expects you to convert. omp reads the eight formats already on disk in their native shape — Cursor MDC, Cline .clinerules, Codex AGENTS.md, Copilot applyTo, and the rest. No migration script, no YAML-to-TOML port, no "supported subset" footnotes. The config your team wrote last quarter still works tonight.
+Every other agent ships an importer and expects you to convert. omap reads the eight formats already on disk in their native shape — Cursor MDC, Cline .clinerules, Codex AGENTS.md, Copilot applyTo, and the rest. No migration script, no YAML-to-TOML port, no "supported subset" footnotes. The config your team wrote last quarter still works tonight.
 
-### 14 · omp commit: atomic splits, validated messages
+### 14 · omap commit: atomic splits, validated messages
 
-omp reads the working tree through git-overview, git-file-diff, and git-hunk, then splits unrelated changes into atomic commits ordered by their dependencies. Cycles are rejected before anything is written. Source files score above tests, docs, and configs, so the headline commit is the one that matters. Lock files are excluded from analysis entirely.
+omap reads the working tree through git-overview, git-file-diff, and git-hunk, then splits unrelated changes into atomic commits ordered by their dependencies. Cycles are rejected before anything is written. Source files score above tests, docs, and configs, so the headline commit is the one that matters. Lock files are excluded from analysis entirely.
 
 ### 15 · Read PRs. _Walk skills._ Pull JSON out of subagents.
 
@@ -351,7 +351,7 @@ The table below is a per-module breakdown that intentionally omits glue and test
 
 ## Four entry points: _interactive_, _one-shot_, RPC, and ACP.
 
-Same engine, four wrappers. `omp` runs the TUI. `omp -p` answers a single prompt and exits. The Node SDK embeds the session in your process. `omp --mode rpc` and `omp acp` hand the wheel to another program over stdio.
+Same engine, four wrappers. `omap` runs the TUI. `omap -p` answers a single prompt and exits. The Node SDK embeds the session in your process. `omap --mode rpc` and `omap acp` hand the wheel to another program over stdio.
 
 ### Interactive — when in doubt, the agent asks
 
@@ -384,12 +384,12 @@ await session.prompt("list .ts files");
 
 ### RPC — drive over stdio
 
-`omp --mode rpc`
+`omap --mode rpc`
 
 For non-Node embedders, or when you want process isolation. NDJSON commands in, response and event frames out. `--mode rpc-ui` adds tool cards, selectors, and dialogs as `extension_ui_request` frames the host must answer.
 
 ```
-$ omp --mode rpc --no-session
+$ omap --mode rpc --no-session
 > {"id":"r1","type":"prompt","message":"list .ts files"}
 < {"id":"r1","type":"response", ...}
 > {"id":"r2","type":"set_model","provider":"anthropic","modelId":"sonnet-4.5"}
@@ -398,11 +398,11 @@ $ omp --mode rpc --no-session
 
 ### ACP — speak to editors
 
-`omp acp`
+`omap acp`
 
 The [Agent Client Protocol](https://github.com/zed-industries/agent-client-protocol) over JSON-RPC. When the editor advertises capabilities, tool I/O routes through it and writes are gated by `session/request_permission`.
 
-| omp tool                      | ACP route                           |
+| omap tool                      | ACP route                           |
 | ----------------------------- | ----------------------------------- |
 | `bash`                        | `terminal/create + terminal/output` |
 | `read`                        | `fs/read_text_file`                 |
@@ -415,7 +415,7 @@ Full reference: [omp.sh/docs/sdk](https://omp.sh/docs/sdk).
 
 Pick it up at **[omp.sh](https://omp.sh)**.
 
-omp is a fork of [Pi](https://github.com/badlogic/pi-mono) by [Mario Zechner](https://github.com/mariozechner), rewritten as a coding-first surface: sessions, subagents, slash commands, extensions — all TypeScript, all MIT, all on [GitHub](https://github.com/can1357/oh-my-applepie). Shape it from config, hook it from outside, or read the source when you need to.
+omap is a fork of [Pi](https://github.com/badlogic/pi-mono) by [Mario Zechner](https://github.com/mariozechner), rewritten as a coding-first surface: sessions, subagents, slash commands, extensions — all TypeScript, all MIT, all on [GitHub](https://github.com/SungJun1217/oh-my-applepie). Shape it from config, hook it from outside, or read the source when you need to.
 
 ### Primitives
 
@@ -423,15 +423,15 @@ An extension is a TypeScript module. Same tool API, same slash-command registry,
 
 ### Discovery
 
-On first run omp inherits whatever is already on disk: rules, skills, and MCP servers from `.claude`, `.cursor`, `.windsurf`, `.gemini`, `.codex`, `.cline`, `.github/copilot`, and `.vscode`. No migration script.
+On first run omap inherits whatever is already on disk: rules, skills, and MCP servers from `.claude`, `.cursor`, `.windsurf`, `.gemini`, `.codex`, `.cline`, `.github/copilot`, and `.vscode`. No migration script.
 
 ### Extensibility
 
-Ask omp to write the piece you're missing, then `/reload-plugins`. Keep it local, ship it in a `marketplace`, or publish it to npm.
+Ask omap to write the piece you're missing, then `/reload-plugins`. Keep it local, ship it in a `marketplace`, or publish it to npm.
 
 ## Philosophy
 
-omp is a fork of [pi-mono](https://github.com/badlogic/pi-mono) by [Mario Zechner](https://github.com/mariozechner), extended with a batteries-included coding workflow.
+omap is a fork of [pi-mono](https://github.com/badlogic/pi-mono) by [Mario Zechner](https://github.com/mariozechner), extended with a batteries-included coding workflow.
 
 Key ideas:
 
