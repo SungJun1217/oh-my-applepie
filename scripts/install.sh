@@ -174,8 +174,11 @@ install_via_bun() {
             exit 1
         }
 
-        bun install -g "$TMP_DIR/packages/coding-agent" || {
-            echo "Failed to install from source"
+        # Symlink the binary from workspace node_modules (bun install -g
+        # doesn't support catalog: protocol for workspace packages).
+        mkdir -p "$INSTALL_DIR"
+        ln -sf "$TMP_DIR/node_modules/.bin/omap" "$INSTALL_DIR/omap" || {
+            echo "Failed to link omap binary"
             exit 1
         }
     else
