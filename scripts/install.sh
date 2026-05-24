@@ -181,10 +181,24 @@ install_via_bun() {
             exit 1
         }
 
-        # Link the binary from workspace node_modules
+        # Build native addon (requires Rust toolchain)
+        echo "Building native addon..."
+        (cd "$REPO_DIR" && bun --cwd=packages/natives run build) || {
+            echo "Failed to build native addon. Is Rust installed? https://rustup.rs"
+            exit 1
+        }
+
+        # Build standalone binary
+        echo "Building omap binary..."
+        (cd "$REPO_DIR" && bun --cwd=packages/coding-agent run build) || {
+            echo "Failed to build omap binary"
+            exit 1
+        }
+
+        # Install the binary
         mkdir -p "$INSTALL_DIR"
-        ln -sf "$REPO_DIR/node_modules/.bin/omap" "$INSTALL_DIR/omap" || {
-            echo "Failed to link omap binary"
+        cp "$REPO_DIR/packages/coding-agent/dist/omap" "$INSTALL_DIR/omap" || {
+            echo "Failed to install omap binary"
             exit 1
         }
     else
