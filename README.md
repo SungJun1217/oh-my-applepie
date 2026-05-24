@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="https://github.com/can1357/oh-my-applepie/blob/main/assets/hero.png?raw=true" alt="omp">
+  <img src="https://github.com/SungJun1217/oh-my-applepie/blob/main/assets/hero.png?raw=true" alt="omap">
 </p>
 
 <p align="center">
   <strong>A coding agent with the IDE wired in.</strong>
-  <strong><a href="https://omp.sh">omp.sh</a></strong>
+  <strong><a href="https://github.com/SungJun1217/oh-my-applepie">GitHub</a></strong>
 </p>
 
 <p align="center">
@@ -73,19 +73,19 @@ Originally built on [Mario Zechner](https://github.com/mariozechner)'s wonderful
 
 Most harnesses give the agent a Python sandbox and call it done. Ours runs persistent Python and a Bun worker, and either kernel can call back into the agent's own tools — read, search, task — over a loopback bridge. The agent loads a CSV with tool.read from inside Python, charts it from JavaScript, and never leaves the cell.
 
-![omp TUI: a single eval session with `[1/2] pandas describe` (Python) printing a real DataFrame.describe() table, followed by `[2/2] top scorer` (JavaScript) running a reduce. Footer: 'Both kernels ran in one session.'](https://omp.sh/captures/eval.webp)
+![omap TUI: a single eval session with `[1/2] pandas describe` (Python) printing a real DataFrame.describe() table, followed by `[2/2] top scorer` (JavaScript) running a reduce. Footer: 'Both kernels ran in one session.'](https://omp.sh/captures/eval.webp)
 
 ### 02 · LSP wired into every write
 
 Ask for a rename and you get a rename. The call goes through workspace/willRenameFiles, so re-exports, barrel files, and aliased imports update before the file moves. Everything your IDE knows, the agent knows.
 
-![omp TUI: `LSP references` returns five hits across three files for the symbol `formatBytes`, then `LSP rename` applies the change with edits to format.ts/report.ts/cli.ts, then a `Search formatBytes 0 matches` confirmation. Final line: 'Rename complete. Five edits across three files…'.](https://omp.sh/captures/lsp.webp)
+![omap TUI: `LSP references` returns five hits across three files for the symbol `formatBytes`, then `LSP rename` applies the change with edits to format.ts/report.ts/cli.ts, then a `Search formatBytes 0 matches` confirmation. Final line: 'Rename complete. Five edits across three files…'.](https://omp.sh/captures/lsp.webp)
 
 ### 03 · Drives a real debugger
 
 A C binary segfaults: the agent attaches lldb, steps to the bad pointer, reads the frame. A Go service hangs: it attaches dlv and walks the goroutines. A Python process is wedged: debugpy, pause, inspect, evaluate. Most agents are still sprinkling print statements.
 
-![omp TUI: a live lldb-dap session against a native binary at /tmp/omp-native/demo. Adapter=lldb-dap, Status=stopped, Frame=xorshift32, Instruction pointer 0x10000055C, Location demo.c:6:10. Debug scopes and Debug variables cards show locals (x = 57351) and the agent confirms the math: x went from 7 → 57351 (= 7 ^ (7<<13)).](https://omp.sh/clips/dap-poster.webp)
+![omap TUI: a live lldb-dap session against a native binary at /tmp/omp-native/demo. Adapter=lldb-dap, Status=stopped, Frame=xorshift32, Instruction pointer 0x10000055C, Location demo.c:6:10. Debug scopes and Debug variables cards show locals (x = 57351) and the agent confirms the math: x went from 7 → 57351 (= 7 ^ (7<<13)).](https://omp.sh/clips/dap-poster.webp)
 
 _[Watch the capture ↗](https://omp.sh/clips/dap.mp4)_
 
@@ -93,7 +93,7 @@ _[Watch the capture ↗](https://omp.sh/clips/dap.mp4)_
 
 Your rules sit dormant until the model goes off-script. A regex match aborts the stream mid-token, injects the rule as a system reminder, and retries from the same point. You get course-correction without paying context tax on every turn. Injections survive compaction, so the fix sticks.
 
-![omp TUI: agent reading src.rs and about to write Box::leak when the request aborts (red `Error: Request was aborted`), an amber `⚠ Injecting rule: box-leak` card injects the rule body `Don't reach for Box::leak in production code paths`, and the agent then course-corrects by proposing `Arc<str>` and asking the user to confirm.](https://omp.sh/clips/ttsr-poster.webp)
+![omap TUI: agent reading src.rs and about to write Box::leak when the request aborts (red `Error: Request was aborted`), an amber `⚠ Injecting rule: box-leak` card injects the rule body `Don't reach for Box::leak in production code paths`, and the agent then course-corrects by proposing `Arc<str>` and asking the user to confirm.](https://omp.sh/clips/ttsr-poster.webp)
 
 _[Watch the capture ↗](https://omp.sh/clips/ttsr.mp4)_
 
@@ -101,7 +101,7 @@ _[Watch the capture ↗](https://omp.sh/clips/ttsr.mp4)_
 
 Split a job across workers and get typed results back. task fans out into isolated worktrees, each worker runs its own tool surface, and the final yield is a schema-validated object the parent reads directly. No prose to parse, no merge conflicts between siblings, no orphaned edits.
 
-![omp TUI showing `task` spawning two subagents `ComponentsExports` and `RoutesExports`, the constraints block requiring an IRC DM between peers, the per-subagent status cards with cost and duration, and a final Findings section listing both exports plus an honest 'IRC coordination note' about a one-sided handshake.](https://omp.sh/clips/irc-poster.webp)
+![omap TUI showing `task` spawning two subagents `ComponentsExports` and `RoutesExports`, the constraints block requiring an IRC DM between peers, the per-subagent status cards with cost and duration, and a final Findings section listing both exports plus an honest 'IRC coordination note' about a one-sided handshake.](https://omp.sh/clips/irc-poster.webp)
 
 _[Watch the capture ↗](https://omp.sh/clips/irc.mp4)_
 
@@ -109,7 +109,7 @@ _[Watch the capture ↗](https://omp.sh/clips/irc.mp4)_
 
 web_search chains fourteen ranked providers and hands whatever URLs it finds straight to read. Arxiv PDFs, GitHub pages, Stack Overflow threads come back as structured markdown with anchors intact — the same tool surface you use on local files. Cite, follow, quote, never lose where you came from.
 
-![omp TUI: web_search returns 10 ranked Perplexity sources for inference-time compute scaling, the agent picks an arxiv paper, calls read https://arxiv.org/pdf/2604.10739v1, and summarizes the paper's headline result with real numbers.](https://omp.sh/clips/web-poster.webp)
+![omap TUI: web_search returns 10 ranked Perplexity sources for inference-time compute scaling, the agent picks an arxiv paper, calls read https://arxiv.org/pdf/2604.10739v1, and summarizes the paper's headline result with real numbers.](https://omp.sh/clips/web-poster.webp)
 
 _[Watch the capture ↗](https://omp.sh/clips/web.mp4)_
 
@@ -149,13 +149,13 @@ omap reads the working tree through git-overview, git-file-diff, and git-hunk, t
 
 Ten internal schemes — `pr://`, `issue://`, `agent://`, `skill://`, `rule://`, and the rest — resolve transparently inside every FS-shaped tool the agent already calls. `read pr://1428` returns the same shape as `read src/foo.ts`. `search` walks a diff like a directory. `agent://<id>/findings.0.path` pulls a field out of a subagent's output by path.
 
-![omp TUI reading pr://can1357/oh-my-applepie/1063 and then /diff/1, showing hunk headers, added lines, and a [MODIFIED] (+12 -0) summary.](https://omp.sh/captures/pr.webp)
+![omap TUI reading pr://can1357/oh-my-applepie/1063 and then /diff/1, showing hunk headers, added lines, and a [MODIFIED] (+12 -0) summary.](https://omp.sh/captures/pr.webp)
 
 ### 16 · Conflict resolution, made easy.
 
 Each merge conflict becomes one URL. The agent writes `@theirs`, `@ours`, or `@base` to `conflict://N` and the file resolves cleanly. Bulk form: `conflict://*`.
 
-![omp TUI: ✓ Read src/session.ts (⚠ 1 conflict), then ✓ Write conflict://1 · 1 line with content @theirs, then a confirmation 'Resolved.'](https://omp.sh/clips/conflict-poster.webp)
+![omap TUI: ✓ Read src/session.ts (⚠ 1 conflict), then ✓ Write conflict://1 · 1 line with content @theirs, then a confirmation 'Resolved.'](https://omp.sh/clips/conflict-poster.webp)
 
 _[Watch the capture ↗](https://omp.sh/clips/conflict.mp4)_
 
@@ -163,7 +163,7 @@ _[Watch the capture ↗](https://omp.sh/clips/conflict.mp4)_
 
 `ast_edit` returns a _(proposed)_ card with the replacement count. The change is staged. The agent calls `resolve` with a reason; the TUI turns it into an **Accept** card and the disk move happens — atomic, all or nothing.
 
-![omp TUI: ✓ AST Edit: console.log($X) (proposed) 3 replacements · 1 file, then ✓ Accept: 3 replacements in 1 file (AST Edit), followed by 'Applied 3 replacements in src/auth.ts.'](https://omp.sh/clips/codemod-poster.webp)
+![omap TUI: ✓ AST Edit: console.log($X) (proposed) 3 replacements · 1 file, then ✓ Accept: 3 replacements in 1 file (AST Edit), followed by 'Applied 3 replacements in src/auth.ts.'](https://omp.sh/clips/codemod-poster.webp)
 
 _[Watch the capture ↗](https://omp.sh/clips/codemod.mp4)_
 
@@ -171,7 +171,7 @@ _[Watch the capture ↗](https://omp.sh/clips/codemod.mp4)_
 
 Stealth's on by default, so pages see a normal user instead of a headless bot. The same API drives any Electron app in place — point it at Slack and the agent reads your DMs the way it reads the web.
 
-![omp TUI driving the browser tool against DuckDuckGo](https://omp.sh/captures/browser.webp)
+![omap TUI driving the browser tool against DuckDuckGo](https://omp.sh/captures/browser.webp)
 
 ## Whatever the task needs, _it's already in the box_.
 
@@ -232,7 +232,7 @@ Stealth's on by default, so pages see a normal user instead of a headless bot. T
 
 Setting-gated, off by default: `github`, `calc`, `inspect_image`, `render_mermaid`, `checkpoint`, `rewind`, `search_tool_bm25`, `retain`, `recall`, `reflect`. Flip them on once, scoped per project.
 
-[Full reference →](https://omp.sh/docs/tools)
+[Full reference →](https://github.com/SungJun1217/oh-my-applepie)
 
 ## Forty-plus providers, hundreds of models, _one /model away_.
 
@@ -260,12 +260,12 @@ Ollama `local` · Ollama Cloud · LM Studio `local` · llama.cpp `local` · vLLM
 
 ### Four knobs that make routing useful
 
-- **Custom providers** — Declare anything that speaks `openai-completions`, `openai-responses`, `openai-codex-responses`, `azure-openai-responses`, `anthropic-messages`, `google-generative-ai`, or `google-vertex` in `~/.omp/agent/models.yml`.
+- **Custom providers** — Declare anything that speaks `openai-completions`, `openai-responses`, `openai-codex-responses`, `azure-openai-responses`, `anthropic-messages`, `google-generative-ai`, or `google-vertex` in `~/.omap/agent/models.yml`.
 - **Fallback chains** — Per-role chains under `retry.fallbackChains`. When the primary throws 429s or hits a quota wall, the next entry takes the rest of the turn — restored on cooldown.
 - **Path-scoped roles** — Nest `paths:` under `modelRoles` to pin a heavier `default` on one repo without touching the global config. Closest path wins.
 - **Round-robin credentials** — Stack API keys per provider and the runtime rotates with session affinity and per-credential backoff. Useful when one key would burn its quota by lunch.
 
-Full provider & routing reference at [omp.sh/docs/providers](https://omp.sh/docs/providers).
+Full provider & routing reference in the [docs](https://github.com/SungJun1217/oh-my-applepie).
 
 ## Fourteen backends. _One tool the agent already knows_.
 
@@ -313,7 +313,7 @@ Vuln lookups answer with vendor data, not blog summaries.
 - **OSV** — open source vuln feed
 - **CISA KEV** — known exploited vulns
 
-[`web_search` reference ↗](https://omp.sh/docs/tools#web_search)
+[`web_search` reference ↗](https://github.com/SungJun1217/oh-my-applepie)
 
 ## Roughly **~27,000** lines of Rust, doing the work other harnesses shell out for.
 
@@ -359,7 +359,7 @@ The TUI is the default surface. Tool calls render as cards, edits preview before
 
 The same prompt cards surface over ACP, so editors get the picker without writing one.
 
-![omp TUI: the ask tool renders an option picker with three choices, a (Recommended) badge on the first, and 'up/down navigate · enter select · esc cancel' footer.](https://omp.sh/captures/ask.webp)
+![omap TUI: the ask tool renders an option picker with three choices, a (Recommended) badge on the first, and 'up/down navigate · enter select · esc cancel' footer.](https://omp.sh/captures/ask.webp)
 
 ### SDK — embed in Node
 
@@ -409,86 +409,8 @@ The [Agent Client Protocol](https://github.com/zed-industries/agent-client-proto
 | `write`                       | `fs/write_text_file`                |
 | `edit, ast_edit, write, bash` | `session/request_permission`        |
 
-Full reference: [omp.sh/docs/sdk](https://omp.sh/docs/sdk).
+Full reference: [docs](https://github.com/SungJun1217/oh-my-applepie).
 
 ## A harness worth keeping is one you _don't_ outgrow.
 
-Pick it up at **[omp.sh](https://omp.sh)**.
-
-omap is a fork of [Pi](https://github.com/badlogic/pi-mono) by [Mario Zechner](https://github.com/mariozechner), rewritten as a coding-first surface: sessions, subagents, slash commands, extensions — all TypeScript, all MIT, all on [GitHub](https://github.com/SungJun1217/oh-my-applepie). Shape it from config, hook it from outside, or read the source when you need to.
-
-### Primitives
-
-An extension is a TypeScript module. Same tool API, same slash-command registry, same hotkey table, same TUI primitives the built-ins use. Nothing is reserved.
-
-### Discovery
-
-On first run omap inherits whatever is already on disk: rules, skills, and MCP servers from `.claude`, `.cursor`, `.windsurf`, `.gemini`, `.codex`, `.cline`, `.github/copilot`, and `.vscode`. No migration script.
-
-### Extensibility
-
-Ask omap to write the piece you're missing, then `/reload-plugins`. Keep it local, ship it in a `marketplace`, or publish it to npm.
-
-## Philosophy
-
-omap is a fork of [pi-mono](https://github.com/badlogic/pi-mono) by [Mario Zechner](https://github.com/mariozechner), extended with a batteries-included coding workflow.
-
-Key ideas:
-
-- Keep interactive terminal-first UX for real coding work
-- Include practical built-ins (tools, sessions, branching, subagents, extensibility)
-- Make advanced behavior configurable rather than hidden
-
----
-
-## Development
-
-### Debug Command
-
-`/debug` opens tools for debugging, reporting, and profiling.
-
-For architecture and contribution guidelines, see [packages/coding-agent/DEVELOPMENT.md](packages/coding-agent/DEVELOPMENT.md).
-
----
-
-## Monorepo Packages
-
-| Package                                                   | Description                                                                |
-| --------------------------------------------------------- | -------------------------------------------------------------------------- |
-| **[@oh-my-applepie/pi-ai](packages/ai)**                        | Multi-provider LLM client with streaming and model/provider integration    |
-| **[@oh-my-applepie/pi-agent-core](packages/agent)**             | Agent runtime with tool calling and state management                       |
-| **[@oh-my-applepie/pi-coding-agent](packages/coding-agent)**    | Interactive coding agent CLI and SDK                                       |
-| **[@oh-my-applepie/pi-tui](packages/tui)**                      | Terminal UI library with differential rendering                            |
-| **[@oh-my-applepie/pi-natives](packages/natives)**              | N-API bindings for grep, shell, image, text, syntax highlighting, and more |
-| **[@oh-my-applepie/omp-stats](packages/stats)**                 | Local observability dashboard for AI usage statistics                      |
-| **[@oh-my-applepie/pi-utils](packages/utils)**                  | Shared utilities (logging, streams, dirs/env/process helpers)              |
-| **[@oh-my-applepie/swarm-extension](packages/swarm-extension)** | Swarm orchestration extension package                                      |
-
-### Rust Crates
-
-| Crate                                                         | Description                                                                                         |
-| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| **[pi-natives](crates/pi-natives)**                           | Core Rust native addon (N-API `cdylib`) used by `@oh-my-applepie/pi-natives`; aggregates the crates below |
-| **[pi-shell](crates/pi-shell)**                               | Embedded shell / PTY / process management split out of `pi-natives` (wraps `brush-*`)               |
-| **[pi-ast](crates/pi-ast)**                                   | tree-sitter-based code summarizer and AST utilities (50+ language grammars)                         |
-| **[pi-iso](crates/pi-iso)**                                   | Task isolation backend resolver: APFS clones, btrfs/zfs reflinks, overlayfs, projfs, rcopy          |
-| **[brush-core-vendored](crates/brush-core-vendored)**         | Vendored fork of [brush-shell](https://github.com/reubeno/brush) for embedded bash execution        |
-| **[brush-builtins-vendored](crates/brush-builtins-vendored)** | Vendored bash builtins (cd, echo, test, printf, read, export, etc.)                                 |
-
----
-
-## License
-
-MIT. See [LICENSE](LICENSE).
-
-© 2025 Mario Zechner  
-© 2025-2026 Can Bölük
-
-_made for terminals that stay open_
-
-- [omp.sh](https://omp.sh)
-- [GitHub](https://github.com/can1357/oh-my-applepie)
-- [Changelog](https://github.com/can1357/oh-my-applepie/blob/main/packages/coding-agent/CHANGELOG.md)
-- [npm](https://www.npmjs.com/package/@oh-my-applepie/pi-coding-agent)
-- [Discord](https://discord.gg/4NMW9cdXZa)
-- [MIT](https://github.com/can1357/oh-my-applepie/blob/main/LICENSE)
+Find it on **[GitHub](https://github.com/SungJun1217/oh-my-applepie)**
