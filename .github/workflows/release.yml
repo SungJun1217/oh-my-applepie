@@ -72,13 +72,13 @@ jobs:
           TARGET_ARCH: ${{ matrix.arch }}
 
       - name: Rename binary
-        run: mv packages/coding-agent/dist/omap "omp-${{ matrix.platform }}-${{ matrix.arch }}"
+        run: mv packages/coding-agent/dist/omap "omap-${{ matrix.platform }}-${{ matrix.arch }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: omp-${{ matrix.platform }}-${{ matrix.arch }}
-          path: omp-${{ matrix.platform }}-${{ matrix.arch }}
+          name: omap-${{ matrix.platform }}-${{ matrix.arch }}
+          path: omap-${{ matrix.platform }}-${{ matrix.arch }}
 
   release:
     name: Create Release

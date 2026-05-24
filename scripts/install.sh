@@ -179,8 +179,8 @@ install_via_bun() {
         }
     fi
     echo ""
-    echo "✓ Installed omp via bun"
-    echo "Run 'omp' to get started!"
+    echo "✓ Installed omap via bun"
+    echo "Run 'omap' to get started!"
 }
 
 # Install binary from GitHub releases
@@ -201,7 +201,7 @@ install_binary() {
         *)             echo "Unsupported architecture: $ARCH"; exit 1 ;;
     esac
 
-    BINARY="omp-${PLATFORM}-${ARCH}"
+    BINARY="omap-${PLATFORM}-${ARCH}"
     # Get release tag
     if [ -n "$REF" ]; then
         echo "Fetching release $REF..."
@@ -228,15 +228,15 @@ install_binary() {
     # Download binary
     BINARY_URL="https://github.com/${REPO}/releases/download/${LATEST}/${BINARY}"
     echo "Downloading ${BINARY}..."
-    curl -fsSL "$BINARY_URL" -o "${INSTALL_DIR}/omp"
-    chmod +x "${INSTALL_DIR}/omp"
+    curl -fsSL "$BINARY_URL" -o "${INSTALL_DIR}/omap"
+    chmod +x "${INSTALL_DIR}/omap"
     echo ""
-    echo "✓ Installed omp to ${INSTALL_DIR}/omp"
+    echo "✓ Installed omap to ${INSTALL_DIR}/omap"
 
     # Check if in PATH
     case ":$PATH:" in
-        *":$INSTALL_DIR:"*) echo "Run 'omp' to get started!" ;;
-        *) echo "Add ${INSTALL_DIR} to your PATH, then run 'omp'" ;;
+        *":$INSTALL_DIR:"*) echo "Run 'omap' to get started!" ;;
+        *) echo "Add ${INSTALL_DIR} to your PATH, then run 'omap'" ;;
     esac
 }
 
