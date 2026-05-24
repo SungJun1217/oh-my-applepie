@@ -19,6 +19,55 @@ This repo contains multiple packages, but **`packages/coding-agent/`** is the pr
 | `packages/utils`        | Shared utilities (logger, streams, temp files)       |
 | `crates/pi-natives`     | Rust crate for performance-critical text/grep ops    |
 
+## Task Agent Specification
+
+Use task agents for role-specific behavior, not model role slots. Model role slots such as `SMOL`, `SLOW`, `PLAN`, `DESIGNER`, `COMMIT`, and `TASK` only decide which model is used for a class of work; they do not define agent behavior or inject prompts.
+
+### Agent locations
+
+- Product-bundled agents live in `packages/coding-agent/src/prompts/agents/*.md` and are registered in `packages/coding-agent/src/task/agents.ts`.
+- Project-local overrides live in `./.omap/agents/*.md` and should be created with `omp agents unpack --project` before editing existing bundled definitions.
+- User-level overrides live under the configured agent directory, normally `~/.omap/agent/agents/*.md`, and should be created with `omp agents unpack`.
+
+Project-local agents are for repository-specific behavior. Product-bundled agents are for behavior that should ship with the CLI.
+
+### Careful scope-guardian agent
+
+When adding the caution-oriented `CLAUDE.md` behavior, implement it as a dedicated task agent rather than adding the full text to the default system prompt.
+
+Recommended bundled agent name: `scope_guardian`.
+
+Purpose:
+- Review a proposed implementation plan before code changes.
+- Surface assumptions, ambiguities, scope creep, and over-engineering risk.
+- Enforce surgical changes: every changed line should trace to the user request.
+- Require concrete success criteria and verification steps.
+- Push back on unnecessary abstractions, speculative features, unrelated refactors, and weak tests.
+
+Non-goals:
+- Do not replace the main executor.
+- Do not block obvious low-risk fixes with excessive ceremony.
+- Do not apply globally to every agent by default.
+- Do not conflict with the repository autonomy directive; the agent should clarify materially risky ambiguity, not ask for permission on safe reversible work.
+
+Recommended model binding:
+- Use the `TASK` model role slot unless the agent needs deeper architectural reasoning.
+- The prompt lives in the agent markdown file; the `TASK` slot only selects the model used to run that subtask.
+
+Acceptance criteria for implementation:
+- A bundled `scope_guardian` markdown prompt exists under `packages/coding-agent/src/prompts/agents/`.
+- The agent is registered in `packages/coding-agent/src/task/agents.ts`.
+- The agent description clearly says when to invoke it: unclear requirements, high-risk edits, cleanup/refactor work, or plans that may overreach.
+- Tests or existing agent discovery coverage verify that the new bundled agent is discoverable by name.
+
+Verification after implementation:
+- Run the focused task-agent tests that cover bundled agent registration and discovery.
+- Run `bun check` from the repository root; do not use `tsc` or `npx tsc`.
+- If a new test is added, ensure it proves an externally observable contract: the `scope_guardian` bundled agent is discoverable by name and exposes the intended description/model binding.
+- Manually inspect the built prompt file to confirm it is static markdown and does not add inline prompt construction in TypeScript.
+- Confirm the implementation does not change default system prompt behavior and does not force the caution prompt into unrelated agents.
+- Report any skipped verification explicitly, including why it was skipped and the next-best evidence collected.
+
 ## Code Quality
 
 - No `any` unless absolutely necessary.
