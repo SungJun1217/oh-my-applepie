@@ -134,6 +134,18 @@ install_bun() {
     require_bun_version
 }
 
+# Check if Rust is available
+has_rust() {
+    command -v rustc >/dev/null 2>&1 && command -v cargo >/dev/null 2>&1
+}
+
+# Install Rust
+install_rust() {
+    echo "Installing Rust..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+    . "$HOME/.cargo/env"
+}
+
 # Check if git-lfs is available
 has_git_lfs() {
     command -v git-lfs >/dev/null 2>&1
@@ -181,10 +193,13 @@ install_via_bun() {
             exit 1
         }
 
-        # Build native addon (requires Rust toolchain)
+        # Build native addon
         echo "Building native addon..."
+        if ! has_rust; then
+            install_rust
+        fi
         (cd "$REPO_DIR" && bun --cwd=packages/natives run build) || {
-            echo "Failed to build native addon. Is Rust installed? https://rustup.rs"
+            echo "Failed to build native addon"
             exit 1
         }
 
