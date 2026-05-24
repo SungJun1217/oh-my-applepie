@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  Fork of <a href="https://github.com/badlogic/pi-mono">Pi</a> by <a href="https://github.com/mariozechner">@mariozechner</a> 
+  Fork of <a href="https://github.com/can1357/oh-my-pi">Oh My Pi</a> by <a href="https://github.com/can1357">@can1357</a> 
 </p>
 
 The most capable agent surface that ships. Continuously tuned by real-world use — complete out of the box, open all the way down.
@@ -414,3 +414,4 @@ Full reference: [docs](https://github.com/SungJun1217/oh-my-applepie).
 ## A harness worth keeping is one you _don't_ outgrow.
 
 Find it on **[GitHub](https://github.com/SungJun1217/oh-my-applepie)**
+omap is a fork of [Oh My Pi](https://github.com/can1357/oh-my-pi) by [Can Boluk](https://github.com/can1357), which itself builds on [Pi](https://github.com/badlogic/pi-mono) by [Mario Zechner](https://github.com/mariozechner).
