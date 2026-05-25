@@ -1327,9 +1327,9 @@ export class TaskTool implements AgentTool<TaskToolSchemaInstance, TaskToolDetai
 					}
 				}
 				if (r.patchPath) {
-					hasPatches = true;
 					try {
 						const rootPatch = await Bun.file(r.patchPath).text();
+						hasPatches = true;
 						missionChanges += rootPatch.match(/^diff --git /gm)?.length ?? 0;
 					} catch {
 						// patch file may have been cleaned up
