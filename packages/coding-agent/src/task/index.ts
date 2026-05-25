@@ -1304,7 +1304,6 @@ export class TaskTool implements AgentTool<TaskToolSchemaInstance, TaskToolDetai
 				};
 			});
 
-			const outputIds = results.filter(r => !r.aborted || r.output.trim()).map(r => `agent://${r.id}`);
 			const summary = prompt.render(taskSummaryTemplate, {
 				successCount,
 				totalCount: results.length,
@@ -1319,13 +1318,16 @@ export class TaskTool implements AgentTool<TaskToolSchemaInstance, TaskToolDetai
 			// Record mission before cleanup so patch files are still accessible.
 			const missionCost = results.reduce((sum, r) => sum + (r.usage?.cost?.total ?? 0), 0);
 			let missionChanges = 0;
+			let hasPatches = false;
 			for (const r of results) {
 				if (r.nestedPatches) {
+					hasPatches = true;
 					for (const p of r.nestedPatches) {
 						missionChanges += p.patch.match(/^diff --git /gm)?.length ?? 0;
 					}
 				}
 				if (r.patchPath) {
+					hasPatches = true;
 					try {
 						const rootPatch = await Bun.file(r.patchPath).text();
 						missionChanges += rootPatch.match(/^diff --git /gm)?.length ?? 0;
@@ -1348,7 +1350,7 @@ export class TaskTool implements AgentTool<TaskToolSchemaInstance, TaskToolDetai
 				})),
 				workspaces: results.map(r => AgentRegistry.global().get(r.id)?.workspace?.path || "").filter(Boolean),
 				verificationStatus: "none",
-				changes: missionChanges || -1,
+				changes: hasPatches ? missionChanges : -1,
 				totalCost: missionCost,
 			});
 
