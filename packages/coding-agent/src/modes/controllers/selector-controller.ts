@@ -32,6 +32,7 @@ import { FileSessionStorage } from "../../session/session-storage";
 import { isSearchProviderPreference, setPreferredImageProvider, setPreferredSearchProvider } from "../../tools";
 import { setSessionTerminalTitle } from "../../utils/title-generator";
 import { AgentDashboard } from "../components/agent-dashboard";
+import { createAgentProcessTableOverlay } from "../components/agent-process-table";
 import { AssistantMessageComponent } from "../components/assistant-message";
 import { ExtensionDashboard } from "../components/extensions";
 import { HistorySearchComponent } from "../components/history-search";
@@ -44,6 +45,7 @@ import { SettingsSelectorComponent } from "../components/settings-selector";
 import { ToolExecutionComponent } from "../components/tool-execution";
 import { TreeSelectorComponent } from "../components/tree-selector";
 import { UserMessageSelectorComponent } from "../components/user-message-selector";
+import { createWorkspacesTableOverlay } from "../components/workspaces-table";
 import type { SessionObserverRegistry } from "../session-observer-registry";
 
 const CALLBACK_SERVER_PROVIDERS = new Set<OAuthProvider>([
@@ -211,6 +213,38 @@ export class SelectorController {
 			};
 			return { component: dashboard, focus: dashboard };
 		});
+	}
+	/** Show the /agents process table (ps/top for subagents). */
+	showAgentProcessTable(): void {
+		const { component, focus } = createAgentProcessTableOverlay(
+			() => {
+				this.ctx.editorContainer.clear();
+				this.ctx.editorContainer.addChild(this.ctx.editor);
+				this.ctx.ui.setFocus(this.ctx.editor);
+				this.ctx.ui.requestRender();
+			},
+			() => this.ctx.ui.requestRender(),
+		);
+		this.ctx.editorContainer.clear();
+		this.ctx.editorContainer.addChild(component);
+		this.ctx.ui.setFocus(focus);
+		this.ctx.ui.requestRender();
+	}
+	/** Show the /workspaces table. */
+	showWorkspacesTable(): void {
+		const { component, focus } = createWorkspacesTableOverlay(
+			() => {
+				this.ctx.editorContainer.clear();
+				this.ctx.editorContainer.addChild(this.ctx.editor);
+				this.ctx.ui.setFocus(this.ctx.editor);
+				this.ctx.ui.requestRender();
+			},
+			() => this.ctx.ui.requestRender(),
+		);
+		this.ctx.editorContainer.clear();
+		this.ctx.editorContainer.addChild(component);
+		this.ctx.ui.setFocus(focus);
+		this.ctx.ui.requestRender();
 	}
 
 	/**

@@ -168,6 +168,8 @@ export interface AgentDefinition {
 	description: string;
 	systemPrompt: string;
 	tools?: string[];
+	/** Per-agent tool policy (allow/deny/ask). Supersedes `tools` when present. */
+	policy?: AgentPolicy;
 	spawns?: string[] | "*";
 	model?: string[];
 	thinkingLevel?: ThinkingLevel;
@@ -175,6 +177,17 @@ export interface AgentDefinition {
 	blocking?: boolean;
 	source: AgentSource;
 	filePath?: string;
+}
+/** Per-agent tool policy for allow/deny/ask lists. */
+export interface AgentPolicy {
+	/** Tools the agent is allowed to use. If set, unlisted tools are denied. */
+	allow?: string[];
+	/** Tools explicitly denied, even if in `allow`. */
+	deny?: string[];
+	/** Tools/commands requiring user confirmation before use. Format: "tool" or "tool:pattern". */
+	ask?: string[];
+	/** Specific bash commands the agent may run when bash is allowed. If set, unlisted bash commands are denied. */
+	bashAllowlist?: string[];
 }
 
 /** Progress tracking for a single agent */

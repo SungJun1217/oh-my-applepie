@@ -20,8 +20,10 @@ import {
 	MarketplaceManager,
 } from "../extensibility/plugins/marketplace";
 import { resolveMemoryBackend } from "../memory-backend";
+import { formatMission, getLatestMission, getMissions } from "../mission/store";
 import type { InteractiveModeContext } from "../modes/types";
 import { getChangelogPath, parseChangelog } from "../utils/changelog";
+import { formatVerificationResult, getLastResult, runAndStore } from "../verify";
 import { buildContextReportText } from "./helpers/context-report";
 import { formatDuration } from "./helpers/format";
 import { createMarketplaceManager } from "./helpers/marketplace-manager";
@@ -585,10 +587,117 @@ const BUILTIN_SLASH_COMMAND_REGISTRY: ReadonlyArray<SlashCommandSpec> = [
 	},
 	{
 		name: "agents",
-		description: "Open Agent Control Center dashboard",
-		handleTui: (_command, runtime) => {
-			runtime.ctx.showAgentsDashboard();
+		description: "Show running agent processes (ps/top for subagents)",
+		aliases: ["ps"],
+		allowArgs: true,
+		subcommands: [{ name: "config", description: "Open Agent Control Center configuration dashboard" }],
+		handleTui: (command, runtime) => {
+			const sub = command.args?.trim();
+			if (sub === "config") {
+				runtime.ctx.showAgentsDashboard();
+			} else {
+				runtime.ctx.showAgentProcessTable();
+			}
 			runtime.ctx.editor.setText("");
+		},
+	},
+	{
+		name: "verify",
+		description: "Run project verification checks (typecheck, lint)",
+		aliases: ["vet"],
+		allowArgs: true,
+		inlineHint: "[--fix|report]",
+		handle: async (command, runtime) => {
+			const args = command.args?.trim() ?? "";
+
+			if (args === "report") {
+				const last = getLastResult();
+				if (!last) {
+					await runtime.output("No verification results yet. Run /verify first.");
+				} else {
+					await runtime.output(formatVerificationResult(last));
+				}
+				return;
+			}
+
+			await runtime.output("Running verification...");
+			const result = await runAndStore(undefined, runtime.cwd);
+			await runtime.output(formatVerificationResult(result));
+
+			if (args === "--fix" && !result.allPassed) {
+				const failedChecks = result.checks
+					.filter(c => !c.passed)
+					.map(c => c.stderr || c.stdout)
+					.join("\n");
+				return { prompt: `/verify failed. Fix:\n${failedChecks}` };
+			}
+		},
+		handleTui: async (command, runtime) => {
+			const args = command.args?.trim() ?? "";
+
+			if (args === "report") {
+				const last = getLastResult();
+				if (!last) {
+					runtime.ctx.showStatus("No verification results yet. Run /verify first.");
+				} else {
+					runtime.ctx.showStatus(formatVerificationResult(last));
+				}
+				runtime.ctx.editor.setText("");
+				return;
+			}
+
+			runtime.ctx.setWorkingMessage("Running verification...");
+			const result = await runAndStore(undefined, process.cwd());
+			runtime.ctx.applyPendingWorkingMessage();
+			runtime.ctx.showStatus(formatVerificationResult(result));
+			runtime.ctx.editor.setText("");
+
+			if (args === "--fix" && !result.allPassed) {
+				const failedChecks = result.checks
+					.filter(c => !c.passed)
+					.map(c => c.stderr || c.stdout)
+					.join("\n");
+				runtime.ctx.editor.setText(`Fix verification failures:\n${failedChecks}`);
+			}
+		},
+	},
+	{
+		name: "workspaces",
+		description: "Show isolated worktree workspaces",
+		aliases: ["ws"],
+		handleTui: (_command, runtime) => {
+			runtime.ctx.showWorkspacesTable();
+			runtime.ctx.editor.setText("");
+		},
+	},
+	{
+		name: "missions",
+		description: "Show mission log (recent task executions)",
+		allowArgs: true,
+		inlineHint: "[latest]",
+		handle: async (command, runtime) => {
+			const args = command.args?.trim();
+			if (args === "latest") {
+				const m = getLatestMission();
+				if (!m) {
+					await runtime.output("No missions recorded yet.");
+				} else {
+					await runtime.output(formatMission(m));
+				}
+				return;
+			}
+			const missions = getMissions();
+			if (missions.length === 0) {
+				await runtime.output("No missions recorded yet. Run a task to create one.");
+				return;
+			}
+			const lines = missions
+				.slice(0, 10)
+				.map(
+					m =>
+						`${m.id} | ${m.agents.length} agents | ${m.verificationStatus} | ${m.agents.map(a => a.agent).join(", ")}`,
+				);
+			await runtime.output(`Missions:\n${lines.join("\n")}`);
 		},
 	},
 	{

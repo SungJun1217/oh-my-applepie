@@ -2570,6 +2570,12 @@ export class InteractiveMode implements InteractiveModeContext {
 	showAgentsDashboard(): void {
 		void this.#selectorController.showAgentsDashboard();
 	}
+	showAgentProcessTable(): void {
+		this.#selectorController.showAgentProcessTable();
+	}
+	showWorkspacesTable(): void {
+		this.#selectorController.showWorkspacesTable();
+	}
 
 	showModelSelector(options?: { temporaryOnly?: boolean }): void {
 		this.#selectorController.showModelSelector(options);

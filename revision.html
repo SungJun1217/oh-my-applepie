@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Revision Prompt — Remaining Agent Monitoring Fixes</title>
+		<style>
+			:root {
+				--bg: #f6f8fc;
+				--paper: #fff;
+				--ink: #142033;
+				--muted: #5d687b;
+				--line: #dde4ef;
+				--blue: #2759d9;
+				--blue-soft: #edf3ff;
+				--green: #146b43;
+				--green-soft: #eaf8f0;
+				--orange: #a54b12;
+				--orange-soft: #fff1e7;
+			}
+			* { box-sizing: border-box; }
+			body {
+				margin: 0;
+				background: var(--bg);
+				color: var(--ink);
+				font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+				line-height: 1.6;
+			}
+			main {
+				max-width: 980px;
+				margin: 38px auto;
+				padding: 0 18px 46px;
+			}
+			article {
+				background: var(--paper);
+				border: 1px solid var(--line);
+				border-radius: 18px;
+				padding: clamp(24px, 5vw, 52px);
+				box-shadow: 0 9px 30px rgba(20, 32, 51, 0.06);
+			}
+			.tag {
+				display: inline-block;
+				padding: 4px 11px;
+				border-radius: 999px;
+				background: var(--blue-soft);
+				color: var(--blue);
+				font-size: .76rem;
+				font-weight: 700;
+				letter-spacing: .045em;
+				text-transform: uppercase;
+			}
+			h1 {
+				margin: 10px 0 10px;
+				font-size: clamp(1.7rem, 4vw, 2.4rem);
+				line-height: 1.2;
+				letter-spacing: -.035em;
+			}
+			h2 {
+				font-size: 1.2rem;
+				margin: 35px 0 13px;
+				padding-bottom: 8px;
+				border-bottom: 1px solid var(--line);
+			}
+			h3 {
+				font-size: 1.02rem;
+				margin: 0 0 8px;
+			}
+			p { margin: 8px 0 13px; }
+			.subtitle { color: var(--muted); margin-bottom: 24px; }
+			.passed {
+				padding: 15px 18px;
+				margin: 16px 0;
+				border-left: 4px solid var(--green);
+				border-radius: 0 10px 10px 0;
+				background: var(--green-soft);
+			}
+			.defect {
+				border: 1px solid var(--line);
+				border-radius: 12px;
+				padding: 16px 18px;
+				margin: 12px 0;
+			}
+			.priority {
+				background: var(--orange-soft);
+				color: var(--orange);
+				border-radius: 999px;
+				font-size: .73rem;
+				font-weight: 700;
+				padding: 2px 9px;
+				margin-left: 8px;
+				vertical-align: middle;
+			}
+			ul, ol { padding-left: 24px; margin: 9px 0 16px; }
+			li { margin: 5px 0; }
+			code {
+				font-family: "SFMono-Regular", Consolas, monospace;
+				font-size: .92em;
+				background: #f0f3f8;
+				border-radius: 5px;
+				padding: .13em .36em;
+			}
+			footer {
+				border-top: 1px solid var(--line);
+				margin-top: 36px;
+				padding-top: 17px;
+				color: var(--muted);
+				font-size: .9rem;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<article>
+				<span class="tag">Latest Verified Revision Prompt</span>
+				<h1>Fix the Remaining Agent Monitoring Defects</h1>
+				<p class="subtitle">
+					Implement only the unresolved issues identified by the latest verification pass.
+					Preserve the functionality that has already passed validation.
+				</p>
+
+				<h2>Verified Behaviors to Preserve</h2>
+				<div class="passed">
+					<ul>
+						<li>Failed tasks display as <code>failed</code>, not <code>aborted</code>.</li>
+						<li>Completed and failed agents remain visible in <code>/agents</code>.</li>
+						<li><code>/agents</code> keyboard controls and registry-driven refresh work.</li>
+						<li><code>/workspaces</code> excludes ordinary non-isolated tasks.</li>
+						<li><code>/workspaces</code> live refresh and close-time unsubscribe work.</li>
+						<li>Terminal agent refs are bounded at <code>MAX_TERMINAL_REFS</code>.</li>
+						<li>Mission cost aggregation uses actual recorded usage.</li>
+						<li>Mission workspace recording no longer falls back to patch artifact paths.</li>
+					</ul>
+				</div>
+
+				<h2>Remaining Defects to Fix</h2>
+
+				<section class="defect">
+					<h3>
+						1. Live registry metadata is overwritten by definitive session registration
+						<span class="priority">High</span>
+					</h3>
+					<p>
+						<strong>Root cause:</strong> <code>runSubprocess()</code> applies cached
+						<code>workspace</code>, <code>toolPolicy</code>, and
+						<code>routerDecision</code> metadata to an early registry ref. Later,
+						<code>createAgentSession()</code> calls <code>AgentRegistry.register()</code>
+						for the same ID and replaces that ref with a fresh object.
+					</p>
+					<p>
+						<strong>Result:</strong> Metadata is missing while the subagent is running:
+						isolated tasks may not appear in <code>/workspaces</code>, and
+						<code>/agents</code> may omit router/tool policy information until terminal
+						re-registration.
+					</p>
+					<p>
+						<strong>Required fix:</strong> Preserve existing metadata when registering
+						the definitive live session, or explicitly reapply cached metadata after
+						<code>createAgentSession()</code> completes. Live and terminal refs must
+						contain consistent metadata.
+					</p>
+				</section>
+
+				<section class="defect">
+					<h3>
+						2. Mission change count is not an actual changed-file count
+						<span class="priority">Medium</span>
+					</h3>
+					<p>
+						<strong>Current issue:</strong> <code>changes</code> is derived from the
+						number of patch artifacts and nested patches. One patch can contain many
+						modified files, so this does not satisfy the declared file-count meaning.
+					</p>
+					<p>
+						<strong>Required fix:</strong> Compute the actual changed-file count from
+						reliable delta/patch/merge data. If reliable file-count data is not
+						available, represent the value explicitly as unknown and update types and
+						display formatting accordingly; do not encode unknown as an invented number.
+					</p>
+				</section>
+
+				<section class="defect">
+					<h3>
+						3. Mission verification state is never connected to verification results
+						<span class="priority">Medium</span>
+					</h3>
+					<p>
+						<strong>Current issue:</strong> Missions always record
+						<code>verificationStatus: "none"</code>, even though verification support
+						now exists.
+					</p>
+					<p>
+						<strong>Required fix:</strong> Connect mission status to real verification
+						results when verification has been run for that mission/workspace. If no
+						verification ran, retain <code>"none"</code> accurately.
+					</p>
+				</section>
+
+				<h2>Implementation Constraints</h2>
+				<ul>
+					<li>Keep the diff narrow and follow existing registry/task patterns.</li>
+					<li>Do not add dependencies.</li>
+					<li>Do not regress any verified behavior listed above.</li>
+					<li>
+						Do not display a patch artifact path as a workspace path or fabricate
+						unknown measurement values.
+					</li>
+				</ul>
+
+				<h2>Regression Tests Required</h2>
+				<ul>
+					<li>
+						After definitive session registration, a running isolated subprocess
+						retains real <code>workspace.path</code> and
+						<code>workspace.backend</code>.
+					</li>
+					<li>
+						A running subprocess retains <code>toolPolicy</code> and resolved
+						<code>routerDecision</code>; these metadata also survive terminal status.
+					</li>
+					<li>
+						Terminal entries remain bounded at <code>MAX_TERMINAL_REFS</code>.
+					</li>
+					<li>
+						Mission workspaces contain actual workspace paths only, never patch
+						artifact paths.
+					</li>
+					<li>
+						Mission changes equal an actual changed-file count, or are rendered as
+						unknown when the count cannot be reliably produced.
+					</li>
+					<li>
+						Mission verification status represents real verification execution and
+						remains <code>"none"</code> only when no verification ran.
+					</li>
+				</ul>
+
+				<h2>Validation Commands</h2>
+				<ul>
+					<li><code>bun --cwd=packages/coding-agent run check:types</code></li>
+					<li><code>bun --cwd=packages/coding-agent run lint</code></li>
+					<li><code>git diff --check</code></li>
+					<li>Run targeted regression tests added for live metadata and mission accuracy.</li>
+					<li>
+						Run existing task/keybinding tests to prove previously verified behavior
+						remains intact.
+					</li>
+				</ul>
+
+				<h2>Completion Report Required</h2>
+				<ul>
+					<li>Describe the live-ref replacement root cause and the preservation fix.</li>
+					<li>List changed files and added regression tests.</li>
+					<li>Report exact validation commands with pass/fail outcomes.</li>
+					<li>Describe how unavailable mission data is represented without fabrication.</li>
+				</ul>
+
+				<footer>
+					Updated from the latest verification: static checks and existing targeted tests
+					passed, but live metadata preservation and mission accuracy remain unresolved.
+				</footer>
+			</article>
+		</main>
+	</body>
+</html>

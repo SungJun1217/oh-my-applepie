@@ -20,13 +20,15 @@ import type { Usage } from "@oh-my-applepie/pi-ai";
 import { $env, prompt, Snowflake } from "@oh-my-applepie/pi-utils";
 import type { ToolSession } from "..";
 import { AsyncJobManager } from "../async";
-import { resolveAgentModelPatterns } from "../config/model-resolver";
+import { resolveAgentModelPatterns, resolveConfiguredModelPatterns } from "../config/model-resolver";
 import { MCPManager } from "../mcp/manager";
+import { recordMission } from "../mission/store";
 import type { Theme } from "../modes/theme/theme";
 import planModeSubagentPrompt from "../prompts/system/plan-mode-subagent.md" with { type: "text" };
 import subagentUserPromptTemplate from "../prompts/system/subagent-user-prompt.md" with { type: "text" };
 import taskDescriptionTemplate from "../prompts/tools/task.md" with { type: "text" };
 import taskSummaryTemplate from "../prompts/tools/task-summary.md" with { type: "text" };
+import { AgentRegistry, type RouterDecision } from "../registry/agent-registry";
 import { formatBytes, formatDuration } from "../tools/render-utils";
 import {
 	type AgentDefinition,
@@ -633,6 +635,32 @@ export class TaskTool implements AgentTool<TaskToolSchemaInstance, TaskToolDetai
 			activeModelPattern: parentActiveModelPattern,
 			fallbackModelPattern: this.session.getModelString?.(),
 		});
+		// Determine the router decision for logging.
+		const settingsOverridePatterns = resolveConfiguredModelPatterns(settingsModelOverride, this.session.settings);
+		const agentModelPatterns = resolveConfiguredModelPatterns(effectiveAgent.model, this.session.settings);
+		let modelSource: RouterDecision["modelSource"];
+		let modelReason: string;
+		if (settingsOverridePatterns.length > 0) {
+			modelSource = "override";
+			modelReason = `per-agent settings override: ${settingsOverridePatterns.join(", ")}`;
+		} else if (agentModelPatterns.length > 0) {
+			modelSource = "frontmatter";
+			modelReason = `agent frontmatter: ${effectiveAgent.model}`;
+		} else if (parentActiveModelPattern) {
+			modelSource = "parent-active";
+			modelReason = `inherited from parent session: ${parentActiveModelPattern}`;
+		} else {
+			modelSource = "default";
+			modelReason = "default model role";
+		}
+		// Store a partial decision; resolvedModel gets filled by the executor.
+		const routerDecisionBase = {
+			requestedAgent: agentName,
+			agentSource: effectiveAgent.source,
+			modelSource,
+			resolvedModel: modelOverride.join(", ") || parentActiveModelPattern || "default",
+			reason: modelReason,
+		};
 		const thinkingLevelOverride = effectiveAgent.thinkingLevel;
 
 		// Output schema priority: task call > agent frontmatter > inherited parent session.
@@ -872,6 +900,7 @@ export class TaskTool implements AgentTool<TaskToolSchemaInstance, TaskToolDetai
 						id: task.id,
 						taskDepth,
 						modelOverride,
+						routerDecision: routerDecisionBase,
 						parentActiveModelPattern,
 						thinkingLevel: thinkingLevelOverride,
 						outputSchema: effectiveOutputSchema,
@@ -913,6 +942,10 @@ export class TaskTool implements AgentTool<TaskToolSchemaInstance, TaskToolDetai
 
 					isolationHandle = await ensureIsolation(repoRoot, task.id, preferredIsolationBackend);
 					const isolationDir = isolationHandle.mergedDir;
+					// Pass workspace info through executor options.
+					const workspaceOpt = isolationHandle
+						? { path: isolationHandle.mergedDir, backend: String(isolationHandle.backend) }
+						: undefined;
 
 					const result = await runSubprocess({
 						cwd: this.session.cwd,
@@ -926,6 +959,8 @@ export class TaskTool implements AgentTool<TaskToolSchemaInstance, TaskToolDetai
 						id: task.id,
 						taskDepth,
 						modelOverride,
+						routerDecision: routerDecisionBase,
+						workspace: workspaceOpt,
 						parentActiveModelPattern,
 						thinkingLevel: thinkingLevelOverride,
 						outputSchema: effectiveOutputSchema,
@@ -1277,12 +1312,47 @@ export class TaskTool implements AgentTool<TaskToolSchemaInstance, TaskToolDetai
 				hasCancelledNote: aborted && cancelledCount > 0,
 				duration: formatDuration(totalDuration),
 				summaries,
-				outputIds,
 				agentName,
 				mergeSummary,
 			});
 
-			// Cleanup temp directory if used
+			// Record mission before cleanup so patch files are still accessible.
+			const missionCost = results.reduce((sum, r) => sum + (r.usage?.cost?.total ?? 0), 0);
+			let missionChanges = 0;
+			for (const r of results) {
+				if (r.nestedPatches) {
+					for (const p of r.nestedPatches) {
+						missionChanges += p.patch.match(/^diff --git /gm)?.length ?? 0;
+					}
+				}
+				if (r.patchPath) {
+					try {
+						const rootPatch = await Bun.file(r.patchPath).text();
+						missionChanges += rootPatch.match(/^diff --git /gm)?.length ?? 0;
+					} catch {
+						// patch file may have been cleaned up
+					}
+				}
+			}
+			recordMission({
+				id: String(Snowflake.next()),
+				startedAt: startTime,
+				endedAt: Date.now(),
+				agents: results.map(r => ({
+					id: r.id,
+					agent: r.agent,
+					status: r.aborted ? "aborted" : r.exitCode === 0 ? "completed" : "failed",
+					model: Array.isArray(r.modelOverride) ? r.modelOverride.join(",") : r.modelOverride,
+					cost: r.usage?.cost?.total ?? 0,
+					durationMs: r.durationMs,
+				})),
+				workspaces: results.map(r => AgentRegistry.global().get(r.id)?.workspace?.path || "").filter(Boolean),
+				verificationStatus: "none",
+				changes: missionChanges || -1,
+				totalCost: missionCost,
+			});
+
+			// Cleanup temp directory if used (after mission recording so patches are readable).
 			const shouldCleanupTempArtifacts =
 				tempArtifactsDir && (!isIsolated || changesApplied === true || changesApplied === null);
 			if (shouldCleanupTempArtifacts) {

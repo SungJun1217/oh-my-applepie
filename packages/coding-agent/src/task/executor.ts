@@ -24,7 +24,7 @@ import { callTool } from "../mcp/client";
 import type { MCPManager } from "../mcp/manager";
 import subagentSystemPromptTemplate from "../prompts/system/subagent-system-prompt.md" with { type: "text" };
 import submitReminderTemplate from "../prompts/system/subagent-yield-reminder.md" with { type: "text" };
-import { AgentRegistry } from "../registry/agent-registry";
+import { type AgentRef, AgentRegistry, type AgentStatus } from "../registry/agent-registry";
 import { createAgentSession, discoverAuthStorage } from "../sdk";
 import type { AgentSession, AgentSessionEvent } from "../session/agent-session";
 import type { ArtifactManager } from "../session/artifacts";
@@ -146,6 +146,15 @@ export interface ExecutorOptions {
 	index: number;
 	id: string;
 	modelOverride?: string | string[];
+	/** Workspace metadata from isolation setup (if isolated). */
+	workspace?: { path: string; backend: string };
+	/** Pre-built router decision metadata (resolvedModel filled at runtime). */
+	routerDecision?: {
+		requestedAgent: string;
+		agentSource: "bundled" | "project" | "user";
+		modelSource: "override" | "frontmatter" | "role-alias" | "parent-active" | "fallback" | "default";
+		reason: string;
+	};
 	/**
 	 * Active model selector of the parent session, used as an auth-aware fallback
 	 * if the resolved subagent model has no working credentials. See #985.
@@ -610,6 +619,28 @@ export async function runSubprocess(options: ExecutorOptions): Promise<SingleRes
 		durationMs: 0,
 		modelOverride,
 	};
+	// Cached metadata for restoration across re-registration cycles.
+	let cachedRouterDecision: AgentRef["routerDecision"];
+	let cachedToolPolicy: string | undefined;
+	let cachedWorkspace: AgentRef["workspace"];
+	let cachedSameErrorCount: number | undefined;
+	if (options.workspace) {
+		cachedWorkspace = {
+			path: options.workspace.path,
+			backend: options.workspace.backend,
+			changes: 0,
+			verified: "none",
+		};
+	}
+	// Helper: write cached metadata to the live ref if it exists.
+	const applyCachedMetadata = () => {
+		const ref = AgentRegistry.global().get(id);
+		if (!ref) return;
+		if (cachedRouterDecision) ref.routerDecision = cachedRouterDecision;
+		if (cachedToolPolicy !== undefined) ref.toolPolicy = cachedToolPolicy;
+		if (cachedWorkspace) ref.workspace = cachedWorkspace;
+		if (cachedSameErrorCount !== undefined) ref.sameErrorCount = cachedSameErrorCount;
+	};
 
 	// Check if already aborted
 	if (signal?.aborted) {
@@ -648,16 +679,31 @@ export async function runSubprocess(options: ExecutorOptions): Promise<SingleRes
 	const childDepth = parentDepth + 1;
 	const atMaxDepth = maxRecursionDepth >= 0 && childDepth >= maxRecursionDepth;
 
-	// Add tools if specified
+	// Build tool list: agent.policy.allow > agent.tools whitelist.
 	let toolNames: string[] | undefined;
-	if (agent.tools && agent.tools.length > 0) {
-		toolNames = agent.tools;
-		// Auto-include task tool if spawns defined but task not in tools
-		if (agent.spawns !== undefined && !toolNames.includes("task") && !atMaxDepth) {
-			toolNames = [...toolNames, "task"];
-		}
+	const policy = agent.policy;
+	if (policy?.allow) {
+		toolNames = [...policy.allow];
+	} else if (agent.tools && agent.tools.length > 0) {
+		toolNames = [...agent.tools];
 	}
-
+	// Apply deny list
+	if (toolNames && policy?.deny) {
+		const denySet = new Set(policy.deny);
+		toolNames = toolNames.filter(name => !denySet.has(name));
+	}
+	// Auto-include task tool if spawns defined
+	if (toolNames && agent.spawns !== undefined && !toolNames.includes("task") && !atMaxDepth) {
+		toolNames = [...toolNames, "task"];
+	}
+	if (toolNames) {
+		cachedToolPolicy = policy?.allow
+			? `allow:${policy.allow.join(",")}`
+			: agent.tools?.length
+				? `allow:${agent.tools.join(",")}`
+				: "default";
+		applyCachedMetadata();
+	}
 	if (atMaxDepth && toolNames?.includes("task")) {
 		toolNames = toolNames.filter(name => name !== "task");
 	}
@@ -702,6 +748,7 @@ export async function runSubprocess(options: ExecutorOptions): Promise<SingleRes
 	let activeSession: AgentSession | null = null;
 	let unsubscribe: (() => void) | null = null;
 	let yieldCalled = false;
+	let resolvedModelLabel: string | undefined;
 
 	// Accumulate usage incrementally from message_end events (no memory for streaming events)
 	const accumulatedUsage = {
@@ -779,6 +826,22 @@ export async function runSubprocess(options: ExecutorOptions): Promise<SingleRes
 	const PROGRESS_COALESCE_MS = 150;
 	let lastProgressEmitMs = 0;
 	let progressTimeoutId: NodeJS.Timeout | null = null;
+	const ensureRegistryRef = (status: AgentStatus = "running") => {
+		if (AgentRegistry.global().get(id)) return;
+		AgentRegistry.global().register({
+			id,
+			displayName: agent.name,
+			kind: "sub",
+			session: null,
+			sessionFile: subtaskSessionFile ?? null,
+			status,
+		});
+		if (resolvedModelLabel) {
+			AgentRegistry.global().updateModel(id, resolvedModelLabel);
+		}
+		// Restore cached metadata.
+		applyCachedMetadata();
+	};
 
 	const emitProgressNow = () => {
 		progress.durationMs = Date.now() - startTime;
@@ -794,6 +857,21 @@ export async function runSubprocess(options: ExecutorOptions): Promise<SingleRes
 				sessionFile: subtaskSessionFile,
 			});
 		}
+		// Update the global agent registry for /agents process table.
+		ensureRegistryRef();
+		AgentRegistry.global().updateProgress(id, {
+			agent: progress.agent,
+			agentSource: progress.agentSource,
+			task: progress.task,
+			currentTool: progress.currentTool,
+			recentTools: progress.recentTools.map(t => ({ tool: t.tool, args: t.args })),
+			toolCount: progress.toolCount,
+			tokens: progress.tokens,
+			contextTokens: progress.contextTokens,
+			contextWindow: progress.contextWindow,
+			cost: progress.cost,
+			durationMs: progress.durationMs,
+		});
 		lastProgressEmitMs = Date.now();
 	};
 
@@ -1154,6 +1232,20 @@ export async function runSubprocess(options: ExecutorOptions): Promise<SingleRes
 			}
 			if (model?.contextWindow && model.contextWindow > 0) {
 				progress.contextWindow = model.contextWindow;
+			}
+			// Record resolved model for /agents process table.
+			if (model) {
+				resolvedModelLabel = `${model.provider}/${model.id}`;
+				ensureRegistryRef();
+				AgentRegistry.global().updateModel(id, resolvedModelLabel);
+			}
+			// Store router decision for /agents table.
+			if (options.routerDecision && model) {
+				cachedRouterDecision = {
+					...options.routerDecision,
+					resolvedModel: resolvedModelLabel!,
+				};
+				applyCachedMetadata();
 			}
 			const effectiveThinkingLevel = explicitThinkingLevel
 				? resolvedThinkingLevel
@@ -1540,6 +1632,19 @@ export async function runSubprocess(options: ExecutorOptions): Promise<SingleRes
 			sessionFile: subtaskSessionFile,
 			index,
 		});
+	}
+	// Reflect final status in the global agent registry.
+	const registryStatus: AgentStatus = wasAborted ? "aborted" : exitCode === 0 ? "completed" : "failed";
+	ensureRegistryRef(registryStatus);
+	AgentRegistry.global().setStatus(id, registryStatus);
+	if (exitCode !== 0 && !wasAborted) {
+		cachedSameErrorCount = (cachedSameErrorCount ?? 0) + 1;
+		const ref = AgentRegistry.global().get(id);
+		if (ref) ref.sameErrorCount = cachedSameErrorCount;
+	} else {
+		cachedSameErrorCount = 0;
+		const ref = AgentRegistry.global().get(id);
+		if (ref) ref.sameErrorCount = 0;
 	}
 
 	return {
