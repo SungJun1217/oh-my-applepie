@@ -6,6 +6,7 @@
  */
 
 import { $ } from "bun";
+import { updateLatestMissionVerification } from "../mission/store";
 import { theme } from "../modes/theme/theme";
 
 export interface VerificationCheck {
@@ -116,5 +117,6 @@ export function resetLastResult(): void {
 
 export async function runAndStore(checks?: VerificationCheck[], cwd?: string): Promise<VerificationResult> {
 	lastResult = await runVerification(checks, cwd);
+	updateLatestMissionVerification(lastResult.allPassed ? "passed" : "failed");
 	return lastResult;
 }

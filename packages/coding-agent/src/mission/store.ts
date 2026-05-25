@@ -45,6 +45,13 @@ export function getLatestMission(): Mission | undefined {
 	return missions[0];
 }
 
+export function updateLatestMissionVerification(verificationStatus: Mission["verificationStatus"]): void {
+	const latest = missions[0];
+	if (latest) {
+		latest.verificationStatus = verificationStatus;
+	}
+}
+
 export function getMission(id: string): Mission | undefined {
 	return missions.find(m => m.id === id);
 }
