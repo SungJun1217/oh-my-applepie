@@ -4,7 +4,7 @@
 `agent-os-monitoring`
 
 ## Monitoring Baseline
-- Latest reviewed HEAD: `96f92600956c9a98f789c8e10390e6da22982e1f` (`doc: record fix verification in revision.md (commit 3ba8f3a)`)
+- Latest reviewed HEAD: `e3ab6b571bb13e271a82d6c804a2123f223b3a98` (`doc: record f22dd10 fix in revision.md`)
 - Functional baseline reviewed: `7c1b6c9317416fd787a4add3bf97b637575b92c6` (`feat: Agent OS monitoring — /agents, /workspaces, /verify, /missions`)
 - Review rule: when HEAD changes, append a commit review entry with changed scope, validation evidence, open defects, and regression-test status.
 
@@ -26,9 +26,8 @@
 
 ## Known Gaps
 1. Mission `verificationStatus` always `"none"` (no reliable mission-to-verification link)
-2. Mission `changes` now preserves `0` when a patch source is present, but may report `0` instead of unknown if a root patch path exists and reading it fails.
-3. Agent policy `bashAllowlist` and `ask` (confirmation) runtime enforcement requires separate validation/fix work.
-4. No direct regression coverage was found for mission verification association or mission change-count edge cases.
+2. Agent policy `bashAllowlist` and `ask` (confirmation) runtime enforcement requires separate validation/fix work.
+3. No direct regression coverage was found for mission verification association or mission change-count edge cases.
 
 ## Verification Results
 <!-- Other agents: append verification findings below this line -->
@@ -108,34 +107,70 @@
 | Existing targeted tests | Pass | 21 tests passed across executor reminder, executor wall-clock, and keybinding escape component tests. |
 | Direct mission regression coverage | Missing | No direct test covering mission status association or patch-read count semantics found in the verified scope. |
 
-## Updated Known Gaps
-1. Mission `verificationStatus` always `"none"` (no reliable mission-to-verification link).
-2. Mission change-count handling needs an explicit unreadable-patch/unknown rule and regression tests.
-3. Agent policy `bashAllowlist` and `ask` runtime enforcement remains unverified.
-4. No targeted regression tests for mission defects.
-
-## Next Commit Checklist
-1. Compare new HEAD against `96f9260` and classify source, test, or documentation scope.
-2. Re-check mission verification association and patch-read/unknown handling if mission-related source changes land.
-3. Run focused regression tests plus type/lint checks for any behavior-changing commit.
-4. Append results here with the new commit hash and evidence.
-
 ### Commit `f22dd10` — `fix: set hasPatches only after successful root patch read`
 **Reviewed:** 2026-05-25
 
 **Changed scope:** `packages/coding-agent/src/task/index.ts` only (1 insertion, 1 deletion).
 
-**Verdict:** Partial-pass defect now fully resolved.
+**Verdict:** Mission change-count unreadable-patch boundary is corrected in implementation; mission verification linkage remains open.
 
 | Validation | Result | Evidence |
 |---|---|---|
-| Changed-scope check | Pass | Only `packages/coding-agent/src/task/index.ts` modified. |
-| Type validation | Pass | `bun --cwd=packages/coding-agent run check:types` 0 errors. |
-| Lint | Pass | `biome check` 0 errors, 0 warnings. |
-| Unreadable-patch handling | Pass | `hasPatches = true` moved inside try after successful `Bun.file().text()`. |
+| Changed-scope check | Pass | `git diff --name-status 96f9260..f22dd10` reports only `M packages/coding-agent/src/task/index.ts`. |
+| Type validation | Pass | `bun --cwd=packages/coding-agent run check:types` completed without errors. |
+| Lint | Pass | `bun --cwd=packages/coding-agent run lint` completed without warnings. |
+| Existing targeted tests | Pass | 21 tests passed across executor reminder, executor wall-clock, and keybinding escape component tests. |
+| Patch-read unknown boundary | Pass by implementation inspection | For `r.patchPath`, `hasPatches = true` now runs only after `Bun.file(r.patchPath).text()` succeeds; unreadable root patch paths no longer force `changes: 0`. |
+| Direct regression test for this boundary | Missing | No focused test found that forces an unreadable root patch path and asserts mission `changes === -1`. |
 
 #### Resolved Defect
-1. ✅ **Medium — unreadable root patch produced false zero.** Fixed by gating `hasPatches` on successful file read.
+1. **Medium — unreadable root patch path could be recorded as zero changed files.** `hasPatches` is now set only after successful root patch reading.
 
-#### Remaining Open Defect
-1. **High — mission verification results not linked to a mission.** Still `verificationStatus: "none"`.
+#### Remaining Open Defects / Risks
+1. **High — mission verification results are not linked to a mission.** `packages/coding-agent/src/task/index.ts:1352` still initializes `verificationStatus: "none"`; `/verify` continues to store a last result without mission association.
+2. **Medium — mission fix regression coverage is absent.** The zero/unknown fixes are implementation-inspected and indirectly compile/test-clean, but not locked by direct behavior tests.
+
+### Commit `e3ab6b5` — `doc: record f22dd10 fix in revision.md`
+**Reviewed:** 2026-05-25
+
+**Changed scope:** `revision.md` only; functional source remains at `f22dd10`.
+
+**Verdict:** Documentation commit records the code fix, but does not alter the remaining high mission-verification defect or add regression coverage.
+
+| Validation | Result | Evidence |
+|---|---|---|
+| Changed-scope check | Pass | `git diff --name-status f22dd10..e3ab6b5` reports only `M revision.md`. |
+| Source validation retained | Pass | On the functional source at `f22dd10`, typecheck, lint, and 21 existing targeted tests passed during this review cycle. |
+| Documentation accuracy | Corrected in worktree | Duplicate/overlapping `f22dd10` entries are consolidated here and the missing regression-test caveat is retained. |
+
+## Updated Known Gaps
+1. Mission `verificationStatus` always `"none"` (no reliable mission-to-verification link).
+2. Agent policy `bashAllowlist` and `ask` runtime enforcement remains unverified.
+3. No targeted regression tests for mission verification association or mission change-count semantics.
+
+## Next Commit Checklist
+1. Compare new HEAD against `e3ab6b5` and classify source, test, or documentation scope.
+2. Re-check mission verification association and direct mission regression tests if mission-related source changes land.
+3. Run focused regression tests plus type/lint checks for any behavior-changing commit.
+4. Append results here with the new commit hash and evidence.
+
+### Commit `e627b31` — `feat: link /verify results to latest mission`
+**Reviewed:** 2026-05-25
+
+**Changed scope:** `packages/coding-agent/src/mission/store.ts`, `packages/coding-agent/src/verify/index.ts`.
+
+**Verdict:** High defect resolved. `/verify` now updates the latest mission's `verificationStatus` via `updateLatestMissionVerification()`.
+
+| Validation | Result | Evidence |
+|---|---|---|
+| Changed-scope check | Pass | Two source files modified. |
+| Type validation | Pass | `tsgo --noEmit` 0 errors, `biome check` 0 errors. |
+| Mission store API | Pass | `updateLatestMissionVerification()` added. |
+| Verify wiring | Pass | `runAndStore()` calls `updateLatestMissionVerification()`. |
+| Default unchanged | Pass | `recordMission()` still defaults to `"none"`. |
+
+#### Resolved Defect
+1. ✅ **High — mission verification results not linked to a mission.**
+
+#### Known Limitation
+- `/verify` before mission recording is a no-op (no mission exists yet). Re-run `/verify` after task completion.
